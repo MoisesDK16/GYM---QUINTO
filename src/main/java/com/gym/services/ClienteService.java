@@ -24,7 +24,7 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    public Page<Cliente> obtenerClientes(int page, int size){
+    public Page<Cliente> listarClientes(int page, int size){
         return clienteRepository.findAll(PageRequest.of(page, size));
     }
 
@@ -59,7 +59,7 @@ public class ClienteService {
     }
 
 
-    public void modificarCliente(
+    public Cliente modificarCliente(
             @NotNull String idCliente,
             @NotNull String tipoIdentificacion,
             @NotNull String nombre,
@@ -82,7 +82,7 @@ public class ClienteService {
         cliente.setDireccion(direccion);
         cliente.setTelefono(telefono);
 
-        clienteRepository.save(cliente);
+        return clienteRepository.save(cliente);
     }
 
     public void eliminarCliente(String id_cliente){

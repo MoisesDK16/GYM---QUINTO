@@ -22,10 +22,8 @@ public class ClientController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<Cliente>> obtenerClientes(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<Cliente> clients = clienteService.obtenerClientes(page, size);
+    public ResponseEntity<Page<Cliente>> obtenerClientes(int page, int size) {
+        Page<Cliente> clients = clienteService.listarClientes(page, size);
 
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
@@ -55,7 +53,7 @@ public class ClientController {
     }
 
     @PutMapping("/modificar/{idCliente}")
-    public ResponseEntity<Void> modificarCliente(
+    public ResponseEntity<Cliente> modificarCliente(
             @PathVariable String idCliente,
             @RequestParam String tipoIdentificacion,
             @RequestParam String nombre,
@@ -66,8 +64,8 @@ public class ClientController {
             @RequestParam(required = false) String direccion,
             @RequestParam(required = false) String telefono
     ) {
-        clienteService.modificarCliente(idCliente, tipoIdentificacion, nombre, primerApellido, segundoApellido, correo, clave, direccion, telefono);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Cliente cliente= clienteService.modificarCliente(idCliente, tipoIdentificacion, nombre, primerApellido, segundoApellido, correo, clave, direccion, telefono);
+        return new ResponseEntity<>(cliente, HttpStatus.OK);
     }
 
     @DeleteMapping("/eliminar/{idCliente}")

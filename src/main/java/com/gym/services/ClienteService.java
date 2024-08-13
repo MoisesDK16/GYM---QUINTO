@@ -32,57 +32,23 @@ public class ClienteService {
         return clienteRepository.findById(id_cliente);
     }
 
-    public Cliente crearCliente(
-            @NotNull String idCliente,
-            @NotNull String tipoIdentificacion,
-            @NotNull String nombre,
-            @NotNull String primerApellido,
-            String segundoApellido,
-            String correo,
-            String clave,
-            String direccion,
-            String telefono){
-
-        var cliente = Cliente.builder()
-                .id_cliente(idCliente)
-                .tipo_identificacion(tipoIdentificacion)
-                .nombre(nombre)
-                .primer_apellido(primerApellido)
-                .segundo_apellido(segundoApellido)
-                .correo(correo)
-                .clave(clave)
-                .direccion(direccion)
-                .telefono(telefono)
-                .build();
-
+    public Cliente registrar(Cliente cliente){
         return clienteRepository.save(cliente);
     }
 
+    public Cliente actualizar(String id_cliente, Cliente cliente) {
+        Cliente clienteActualizar = clienteRepository.findById(id_cliente)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id_cliente));
 
-    public Cliente modificarCliente(
-            @NotNull String idCliente,
-            @NotNull String tipoIdentificacion,
-            @NotNull String nombre,
-            @NotNull String primerApellido,
-            String segundoApellido,
-            String correo,
-            String clave,
-            String direccion,
-            String telefono
-    ) {
-        Cliente cliente = clienteRepository.findById(idCliente)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + idCliente));
-
-        cliente.setTipo_identificacion(tipoIdentificacion);
-        cliente.setNombre(nombre);
-        cliente.setPrimer_apellido(primerApellido);
-        cliente.setSegundo_apellido(segundoApellido);
-        cliente.setCorreo(correo);
-        cliente.setClave(clave);
-        cliente.setDireccion(direccion);
-        cliente.setTelefono(telefono);
-
-        return clienteRepository.save(cliente);
+        clienteActualizar.setTipo_identificacion(cliente.getTipo_identificacion());
+        clienteActualizar.setNombre(cliente.getNombre());
+        clienteActualizar.setPrimer_apellido(cliente.getPrimer_apellido());
+        clienteActualizar.setSegundo_apellido(cliente.getSegundo_apellido());
+        clienteActualizar.setCorreo(cliente.getCorreo());
+        clienteActualizar.setClave(cliente.getClave());
+        clienteActualizar.setDireccion(cliente.getDireccion());
+        clienteActualizar.setTelefono(cliente.getTelefono());
+        return clienteRepository.save(clienteActualizar);
     }
 
     public void eliminarCliente(String id_cliente){

@@ -1,0 +1,45 @@
+package com.gym.models;
+
+import jakarta.persistence.*;
+import java.util.Date;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "membresia")
+
+public class Membresia {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_MEMBRESIA")
+    private Integer idMembresia;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_CLIENTE", nullable = false)
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_PLAN", nullable = false)
+    private Plan plan;
+
+    @Column(name = "FECHA_INICIO", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date fechaInicio;
+
+    @Column(name = "FECHA_FIN", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date fechaFin;
+
+    @Column(name = "ESTADO", length = 20)
+    private String estado;
+}

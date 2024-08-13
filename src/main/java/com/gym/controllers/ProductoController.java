@@ -1,5 +1,6 @@
 package com.gym.controllers;
 
+import com.gym.models.Categoria;
 import com.gym.models.Producto;
 import com.gym.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/productos")
+@RequestMapping("/api/productos")
 public class ProductoController {
 
     @Autowired
@@ -23,7 +25,7 @@ public class ProductoController {
 
     @GetMapping("/all")
     public ResponseEntity<Page<Producto>> findAll(int page, int size) {
-        Page<Producto> productos= productoService.listarProductos(page, size);
+        Page<Producto> productos= productoService.listar(page, size);
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
@@ -35,20 +37,19 @@ public class ProductoController {
 
     @PostMapping("/registrar")
     public ResponseEntity<Producto> guardarProducto(@RequestBody Producto producto) {
-        Producto productoGuardado = productoService.guardarProducto(producto);
+        Producto productoGuardado = productoService.registrar(producto);
         return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
     }
 
     @PutMapping("/actualizar/{id_producto}")
     public ResponseEntity<Producto> actualizarProducto(@PathVariable String id_producto, @RequestBody Producto producto) {
-        Producto productoActualizado = productoService.actualizarProducto(id_producto,producto);
+        Producto productoActualizado = productoService.actualizar(id_producto,producto);
         return new ResponseEntity<>(productoActualizado, HttpStatus.OK);
     }
 
     @DeleteMapping("/eliminar/{id_producto}")
     public ResponseEntity<Void> eliminarProducto(@PathVariable String id_producto) {
-        productoService.eliminarProducto(id_producto);
+        productoService.eliminar(id_producto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }

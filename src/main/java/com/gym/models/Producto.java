@@ -21,23 +21,23 @@ public class Producto {
     @Id
     private String id_producto;
 
-    @ManyToOne
-    @JoinColumn(name = "id_categoria")
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
 
-    @Column
+    @Column(nullable = false)
     private String nombre;
 
-    @Column
+    @Column(nullable = false)
     private int stock;
 
-    @Column
+    @Column(nullable = false)
     private BigDecimal precio_compra;
 
-    @Column
+    @Column(nullable = false)
     private BigDecimal margen_ganancia;
 
-    @Column
+    @Column(nullable = false)
     private BigDecimal precio_venta;
 
     @Column

@@ -29,7 +29,17 @@ public class DetalleService {
     public Detalle guardarDetalleProducto(Detalle detalle) {
 
         Producto producto = null;
-        Factura factura = null;
+        Factura facturaReferencia =  null;
+
+
+        if (detalle.getFactura() != null && detalle.getFactura().getIdFactura() != null) {
+            facturaReferencia = facturaRepository.findLastFactura(detalle.getFactura().getCliente().getId_cliente());
+            if (facturaReferencia == null) {
+                throw new IllegalArgumentException("Factura no encontrada");
+            }
+        } else {
+            throw new IllegalArgumentException("ID de Factura no puede ser nulo");
+        }
 
         if (detalle.getProducto() != null && detalle.getProducto().getId_producto() != null) {
             producto = productoRepository.findById(detalle.getProducto().getId_producto())
@@ -37,20 +47,22 @@ public class DetalleService {
         }
 
         if (detalle.getFactura() != null && detalle.getFactura().getIdFactura() != null) {
-            factura = facturaRepository.findById(detalle.getFactura().getIdFactura())
+            facturaReferencia = facturaRepository.findById(detalle.getFactura().getIdFactura())
                     .orElseThrow(() -> new IllegalArgumentException("Factura no encontrada"));
         } else {
             throw new IllegalArgumentException("ID de Factura no puede ser nulo");
         }
 
+        if(!detalle.getFactura().equals(facturaReferencia))throw new NullPointerException("Factura no encontrada");
         if(detalle.getPrecio() == null) throw new IllegalArgumentException("Precio no encontrado");
         if(detalle.getPrecio().doubleValue() <= 0) throw new IllegalArgumentException("Precio no válido");
         if(detalle.getCantidad() == null) throw new IllegalArgumentException("Cantidad no encontrada");
         if(detalle.getTotal() == null) throw new IllegalArgumentException("Total no encontrado");
 
+
         Detalle detalleBuilder = Detalle.builder()
                 .producto(producto)
-                .factura(factura)
+                .factura(facturaReferencia)
                 .precio(detalle.getPrecio())
                 .cantidad(detalle.getCantidad())
                 .total(detalle.getTotal())

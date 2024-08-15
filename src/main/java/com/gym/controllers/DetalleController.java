@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/detalles")
 public class DetalleController {
-
-
     @Autowired
     private DetalleService detalleService;
 

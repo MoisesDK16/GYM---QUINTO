@@ -3,7 +3,6 @@ package com.gym.services;
 
 import com.gym.models.Cliente;
 import com.gym.models.Factura;
-import com.gym.models.Personal;
 import com.gym.repositories.ClienteRepository;
 import com.gym.repositories.FacturaRepository;
 import com.gym.repositories.PersonalRepository;
@@ -12,9 +11,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-
-import static io.micrometer.common.util.StringUtils.isEmpty;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
@@ -32,11 +30,10 @@ public class FacturaService {
         this.personalRepository = personalRepository;
     }
 
-    public void generarFacturaProducto(
-            Personal user,
+    public Factura generarFactura(
             Cliente cliente,
             String ruc,
-            Date fechaEmision,
+            LocalDateTime fechaEmision,
             String metodoPago,
             BigDecimal subtotal,
             BigDecimal iva,
@@ -47,10 +44,10 @@ public class FacturaService {
                     .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
         }
 
-        if (user.getId_usuario() != 0 && personalRepository.existsById(user.getId_usuario())) {
-            user = personalRepository.findById(user.getId_usuario())
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-        }
+//        if (user.getId_usuario() != 0 && personalRepository.existsById(user.getId_usuario())) {
+//            user = personalRepository.findById(user.getId_usuario())
+//                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+//        }
 
         if(ruc == null) throw new IllegalArgumentException("RUC no encontrado");
         if(fechaEmision == null) throw new IllegalArgumentException("fechaEmision no encontrado");
@@ -60,17 +57,21 @@ public class FacturaService {
         if(total == null) throw new IllegalArgumentException("Total no encontrado");
 
         Factura factura = Factura.builder()
-                .usuario(user)
                 .cliente(cliente)
                 .ruc(ruc)
-                .fechaEmision((java.sql.Date) fechaEmision)
+                .fechaEmision(fechaEmision)
                 .metodoPago(metodoPago)
                 .subtotal(subtotal)
                 .iva(iva)
                 .total(total)
                 .build();
 
-        facturaRepository.save(factura);
+        return facturaRepository.save(factura);
     }
+
+    public Optional<Factura> findLastFactura(String idCliente) {
+        return facturaRepository.findLastFactura(idCliente);
+    }
+
 
 }

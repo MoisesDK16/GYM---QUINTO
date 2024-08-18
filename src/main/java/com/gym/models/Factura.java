@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -34,8 +35,7 @@ public class Factura {
     private String ruc;
 
     @Column(name = "FECHA_EMISION", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaEmision;
+    private LocalDateTime fechaEmision;
 
     @Column(name = "METODO_PAGO", length = 20, nullable = false)
     private String metodoPago;

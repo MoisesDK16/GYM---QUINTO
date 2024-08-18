@@ -1,15 +1,17 @@
 package com.gym.repositories;
 
 import com.gym.models.Factura;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 
 public interface FacturaRepository extends JpaRepository<Factura, Integer> {
 
-    @Query("SELECT f FROM Factura f " +
-            "WHERE f.cliente.id_cliente = :idCliente " +
-            "ORDER BY f.fechaEmision DESC")
+    @Query(value = "SELECT * FROM Factura f " +
+            "WHERE f.ID_CLIENTE = :idCliente " +
+            "ORDER BY f.FECHA_EMISION DESC LIMIT 1", nativeQuery = true)
+    Optional<Factura> findLastFactura(String idCliente);
 
-    Factura findLastFactura(@Param("idCliente") String idCliente);
 }

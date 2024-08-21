@@ -40,13 +40,13 @@ public class FacturaController {
         return new ResponseEntity<>(listaFacturas, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/all", produces = "application/pdf")
-    public ModelAndView getAllAsPdf() {
-        List<Factura> listaFacturas = facturaService.listarFacturas();
-        Map<String, Object> model = new HashMap<>();
-        model.put("factura", listaFacturas);
-        return new ModelAndView(new FileController(facturaService), model);
-    }
+//    @GetMapping(value = "/all", produces = "application/pdf")
+//    public ModelAndView getAllAsPdf() {
+//        List<Factura> listaFacturas = facturaService.listarFacturas();
+//        Map<String, Object> model = new HashMap<>();
+//        model.put("factura", listaFacturas);
+//        return new ModelAndView(new FileController(facturaService), model);
+//    }
 
 
     @GetMapping("/last/{id_cliente}")

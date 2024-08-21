@@ -3,15 +3,12 @@ package com.gym.services;
 import com.gym.models.Cliente;
 import com.gym.repositories.ClienteRepository;
 import lombok.extern.log4j.Log4j2;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @Log4j2

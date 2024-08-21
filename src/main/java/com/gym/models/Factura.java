@@ -7,8 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -48,4 +48,8 @@ public class Factura {
 
     @Column(name = "TOTAL", precision = 5, scale = 2, nullable = false)
     private BigDecimal total;
+
+    @OneToMany(mappedBy = "factura")
+    List<Detalle> detalles;
+
 }

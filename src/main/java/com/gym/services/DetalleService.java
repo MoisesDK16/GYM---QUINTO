@@ -11,6 +11,9 @@ import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 @Log4j2
@@ -41,6 +44,7 @@ public class DetalleService {
         if (detalle.getProducto() != null && detalle.getProducto().getId_producto() != null) {
             producto = productoRepository.findById(detalle.getProducto().getId_producto())
                     .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
         } else {
             throw new IllegalArgumentException("ID de Producto no puede ser nulo");
         }
@@ -64,7 +68,19 @@ public class DetalleService {
                 .build();
 
         return detalleRepository.save(detalleBuilder);
-
     }
 
+    public List<Detalle> listarDetallesFactura(Integer idFactura) {
+
+        List<Detalle> listaDetalles = new ArrayList<>();
+
+        Factura factura = facturaRepository.findById(idFactura)
+                .orElseThrow(() -> new IllegalArgumentException("Factura no encontrada"));
+
+        for(Detalle detalle : factura.getDetalles()) {
+            listaDetalles.add(detalle);
+        }
+
+        return listaDetalles;
+    }
 }

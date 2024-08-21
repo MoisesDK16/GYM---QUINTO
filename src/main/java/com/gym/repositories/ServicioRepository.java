@@ -8,8 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ServicioRepository extends JpaRepository<Servicio, Long> {
+public interface ServicioRepository extends JpaRepository<Servicio, Integer> {
     Page<Servicio> findAllByCategoria(Categoria categoria, Pageable pageable);
     Servicio findByNombreContainingIgnoreCase(String nombre);
-
 }

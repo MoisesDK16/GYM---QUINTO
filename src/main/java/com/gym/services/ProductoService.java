@@ -4,56 +4,81 @@ import com.gym.models.Categoria;
 import com.gym.models.Producto;
 import com.gym.repositories.CategoriaRepository;
 import com.gym.repositories.ProductoRepository;
+import com.gym.services.files.UploadFileService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.View;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
 @Transactional
 @Log4j2
-
+@RequiredArgsConstructor
 public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
-    private final View error;
-
-    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository, View error) {
-        this.productoRepository = productoRepository;
-        this.categoriaRepository = categoriaRepository;
-        this.error = error;
-    }
+    private final UploadFileService uploadFileService;
 
     public Page<Producto> listar(int page, int size) {
-        return productoRepository.findAll(PageRequest.of(page,size));
+        Page<Producto> productos = productoRepository.findAll(PageRequest.of(page, size));
+        return productos;
     }
+
+    @GetMapping("/uploads/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws MalformedURLException {
+        Resource file = uploadFileService.load(filename);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(file);
+    }
+
 
     public Producto obtenerProducto(String id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> new ProductoNotFoundException("Producto con id " + id + " no encontrado"));
     }
 
-    public Producto registrar(Producto producto) {
-        if (producto.getCategoria() == null || producto.getCategoria().getId_categoria()==0) {
+    public Producto registrar(String idProducto, Categoria categoria, String nombre, int stock, double precioCompra,
+                              double margenGanancia, double precioVenta, String descripcion,
+                              MultipartFile image) throws IOException {
+
+        if (categoria == null || categoria.getId_categoria() == 0) {
             throw new IllegalArgumentException("La categoría no puede ser nula");
         }
 
-        // Verifica si la categoría ya existe en la base de datos
-        Optional<Categoria> categoriaExistente = categoriaRepository.findById(producto.getCategoria().getId_categoria());
+        String idImg = uploadFileService.copy(image);
 
-        if (!categoriaExistente.isPresent()) {
-            throw new IllegalArgumentException("La categoría proporcionada no existe en la base de datos");
-        }
+        String imageUrl = "http://localhost:8080/api/productos/uploads/" + idImg;
+        Producto producto = Producto.builder()
+                .idProducto(idProducto)
+                .categoria(categoria)
+                .nombre(nombre)
+                .stock(stock)
+                .precioCompra(BigDecimal.valueOf(precioCompra))
+                .margenGanancia(BigDecimal.valueOf(margenGanancia))
+                .precioVenta(BigDecimal.valueOf(precioVenta))
+                .descripcion(descripcion)
+                .imagen(imageUrl) // Asignar el nombre del archivo de la imagen
+                .build();
 
         return productoRepository.save(producto);
     }
+
 
     public Producto actualizar(String id_producto, Producto producto) {
 
@@ -65,9 +90,9 @@ public class ProductoService {
                         producto.getCategoria(),
                         producto.getNombre(),
                         producto.getStock(),
-                        producto.getPrecio_compra(),
-                        producto.getMargen_ganancia(),
-                        producto.getPrecio_venta())
+                        producto.getPrecioCompra(),
+                        producto.getMargenGanancia(),
+                        producto.getPrecioVenta())
                 .allMatch(Objects::isNull)) {
             throw new IllegalArgumentException("Debe completar los campos no nulos");
         }
@@ -87,9 +112,9 @@ public class ProductoService {
 
         productoExistente.setNombre(producto.getNombre());
         productoExistente.setStock(producto.getStock());
-        productoExistente.setPrecio_compra(producto.getPrecio_compra());
-        productoExistente.setMargen_ganancia(producto.getMargen_ganancia());
-        productoExistente.setPrecio_venta(producto.getPrecio_venta());
+        productoExistente.setPrecioCompra(producto.getPrecioCompra());
+        productoExistente.setMargenGanancia(producto.getMargenGanancia());
+        productoExistente.setPrecioVenta(producto.getPrecioVenta());
         productoExistente.setFecha_caducacion(producto.getFecha_caducacion());
         productoExistente.setDescripcion(producto.getDescripcion());
 

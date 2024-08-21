@@ -2,15 +2,16 @@ package com.gym.controllers;
 
 import com.gym.models.Factura;
 import com.gym.services.FacturaService;
+import com.lowagie.text.Document;
+import com.lowagie.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import com.gym.services.files.ListarDetallesFactura;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -19,6 +20,9 @@ public class FacturaController {
 
     @Autowired
     private FacturaService facturaService;
+
+    @Autowired
+    private ListarDetallesFactura listarDetallesFactura;
 
     @PostMapping("/generar")
     public ResponseEntity<Factura> generarFactura(@RequestBody Factura factura) {
@@ -40,14 +44,23 @@ public class FacturaController {
         return new ResponseEntity<>(listaFacturas, HttpStatus.OK);
     }
 
-//    @GetMapping(value = "/all", produces = "application/pdf")
-//    public ModelAndView getAllAsPdf() {
-//        List<Factura> listaFacturas = facturaService.listarFacturas();
-//        Map<String, Object> model = new HashMap<>();
-//        model.put("factura", listaFacturas);
-//        return new ModelAndView(new FileController(facturaService), model);
-//    }
+    @GetMapping("/DownloadPdf/{facturaId}")
+    public void downloadFacturaPdf(@PathVariable Integer facturaId, HttpServletResponse response) throws Exception {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"facturaPersonal.pdf\"");
 
+        Document document = new Document();
+        PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
+
+        try {
+            document.open();
+            listarDetallesFactura.buildPdfDocument(facturaId, document, writer, null, response);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error generating PDF");
+        } finally {
+            document.close();
+        }
+    }
 
     @GetMapping("/last/{id_cliente}")
     public Optional<Factura> getLastFactura(@PathVariable String id_cliente) {

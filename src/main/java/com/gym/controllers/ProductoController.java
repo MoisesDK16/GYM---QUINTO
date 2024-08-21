@@ -1,12 +1,22 @@
 package com.gym.controllers;
 
+import com.gym.models.Categoria;
 import com.gym.models.Producto;
+import com.gym.repositories.CategoriaRepository;
 import com.gym.services.ProductoService;
+import com.gym.services.files.UploadFileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+
 
 @RestController
 @RequestMapping("/api/productos")
@@ -14,16 +24,31 @@ public class ProductoController {
 
     @Autowired
     private ProductoService productoService;
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
+    @Autowired
+    private UploadFileService uploadFileService;
 
     public ProductoController(ProductoService productoService) {
         this.productoService = productoService;
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<Producto>> findAll(int page, int size) {
-        Page<Producto> productos= productoService.listar(page, size);
+    public ResponseEntity<Page<Producto>> findAll(@RequestParam int page, @RequestParam int size) {
+        Page<Producto> productos = productoService.listar(page, size);
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
+
+    @GetMapping("/uploads/{filename}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws MalformedURLException {
+        Resource file = uploadFileService.load(filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+                .body(file);
+    }
+
 
     @GetMapping("/{id_producto}")
     public ResponseEntity<Producto> findById(@PathVariable String id_producto) {
@@ -31,10 +56,26 @@ public class ProductoController {
         return new ResponseEntity<>(producto, HttpStatus.OK);
     }
 
+
     @PostMapping("/registrar")
-    public ResponseEntity<Producto> guardarProducto(@RequestBody Producto producto) {
-        Producto productoGuardado = productoService.registrar(producto);
-        return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
+    public ResponseEntity<Producto> guardarProducto(
+            @RequestParam("idProducto") String idProducto,
+            @RequestParam("categoriaId") Integer categoriaId,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("stock") int stock,
+            @RequestParam("precioCompra") double precioCompra,
+            @RequestParam("margenGanancia") double margenGanancia,
+            @RequestParam("precioVenta") double precioVenta,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("imagen") MultipartFile imagen) throws IOException {
+
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+
+        Producto productoGuardado = productoService.registrar(idProducto, categoria, nombre, stock, precioCompra,
+                margenGanancia, precioVenta, descripcion, imagen);
+
+        return new ResponseEntity<>(productoGuardado, HttpStatus.OK);
     }
 
     @PutMapping("/actualizar/{id_producto}")

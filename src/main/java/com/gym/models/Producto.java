@@ -1,8 +1,10 @@
 package com.gym.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -17,11 +19,11 @@ import java.sql.Date;
 public class Producto {
 
     @Id
-    private String id_producto;
+    @Column(name = "idProducto")
+    private String idProducto;
 
-    @ManyToOne()
-    @JoinColumn(name = "id_categoria", nullable = false)
-    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "categoriaId", nullable = false)
     private Categoria categoria;
 
     @Column(nullable = false)
@@ -31,18 +33,21 @@ public class Producto {
     private int stock;
 
     @Column(nullable = false)
-    private BigDecimal precio_compra;
+    private BigDecimal precioCompra;
 
     @Column(nullable = false)
-    private BigDecimal margen_ganancia;
+    private BigDecimal margenGanancia;
 
     @Column(nullable = false)
-    private BigDecimal precio_venta;
+    private BigDecimal precioVenta;
 
     @Column
     private Date fecha_caducacion;
 
     @Column
     private String descripcion;
+
+    @Column
+    private String imagen;
 
 }

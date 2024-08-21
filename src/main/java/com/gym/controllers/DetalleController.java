@@ -1,16 +1,13 @@
 package com.gym.controllers;
 
 import com.gym.models.Detalle;
-import com.gym.repositories.DetalleRepository;
 import com.gym.services.DetalleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -27,6 +24,12 @@ public class DetalleController {
         }catch (IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("listar/{idFactura}")
+    public ResponseEntity<List<Detalle>> listarDetallesFactura(@PathVariable Integer idFactura){
+        List<Detalle> listaDetalles = detalleService.listarDetallesFactura(idFactura);
+        return new ResponseEntity<>(listaDetalles,HttpStatus.OK);
     }
 
 

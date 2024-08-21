@@ -1,7 +1,6 @@
 package com.gym.repositories;
 
 import com.gym.models.Factura;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -9,13 +9,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.View;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -25,10 +23,12 @@ public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final View error;
 
-    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository) {
+    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository, View error) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
+        this.error = error;
     }
 
     public Page<Producto> listar(int page, int size) {
@@ -95,6 +95,15 @@ public class ProductoService {
 
         return productoRepository.save(productoExistente);
     }
+
+    public void actualizarStock(String id_producto, int cantidad) {
+        Producto producto = productoRepository.findById(id_producto)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        producto.setStock(producto.getStock()-cantidad);
+        productoRepository.save(producto);
+    }
+
 
     public void eliminar(String id) {
         productoRepository.deleteById(id);

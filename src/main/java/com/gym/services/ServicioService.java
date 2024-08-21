@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
+import java.util.NoSuchElementException;
+
 @Log4j2
 @Service
 @Transactional
@@ -23,39 +24,34 @@ public class ServicioService {
     private final CategoriaRepository categoriaRepository;
 
     public Categoria obtenerCategoria(String nombre){
-        return categoriaRepository.findByNombre(nombre).orElseThrow();
+        return categoriaRepository.findByCategoria(nombre).orElseThrow();
     }
 
-
-    public Servicio obtenerServicio(Long id){
+    public Servicio obtenerServicio(Integer id){
         return repository.findById(id).orElseThrow();
     }
-    public void crearServicio(
-            String nombre,
-            String categoria,
-            BigDecimal precio){
 
-        var cat = obtenerCategoria(categoria);
+    public Servicio crearServicio(Servicio servicio) {
+        try {
+            var builder = Servicio.builder()
+                    .nombre(servicio.getNombre())
+                    .categoria(servicio.getCategoria())
+                    .precio(servicio.getPrecio());
 
-        var builder = Servicio.builder()
-                .nombre(nombre)
-                .categoria(cat)
-                .precio(precio);
-        var servicio = builder.build();
-         repository.save(servicio);
+            var servicioCreado = builder.build();
+            return repository.save(servicioCreado);
+        } catch (NoSuchElementException e) {
+            throw new IllegalArgumentException("Error al crear el servicio: " + e.getMessage());
+        }
     }
 
-    public void actualizarServicio(
-            Long id,
-            String nombre,
-            String categoria,
-            BigDecimal precio) {
-        var servicio = obtenerServicio(id);
-        if (nombre != null) servicio.setNombre(nombre);
-        if (categoria != null) servicio.setCategoria(obtenerCategoria(categoria));
-        if (precio != null) servicio.setPrecio(precio);
-        repository.save(servicio);
 
+    public void actualizarServicio(Servicio servicio) {
+        var servicioEncontrado = obtenerServicio(servicio.getId_servicio());
+        if (servicio.getNombre() != null) servicioEncontrado.setNombre(servicio.getNombre());
+        if (servicio.getCategoria() != null) servicioEncontrado.setCategoria(servicio.getCategoria());
+        if (servicio.getPrecio() != null) servicioEncontrado.setPrecio(servicio.getPrecio());
+        repository.save(servicioEncontrado);
     }
 
     public Page<Servicio> ServiciosPorCategoria(Categoria categoria, int page, int size){
@@ -66,11 +62,8 @@ public class ServicioService {
         return repository.findAll(PageRequest.of(page, size));
     }
 
-    public void eliminarServicio(Long id){
-        repository.deleteById(id);
+    public void eliminarServicio(Integer id_servicio){
+        repository.deleteById(id_servicio);
     }
-
-
-
 
 }

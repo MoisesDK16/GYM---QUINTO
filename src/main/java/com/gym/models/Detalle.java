@@ -1,5 +1,6 @@
 package com.gym.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @Entity
 @Data
@@ -15,7 +15,6 @@ import java.math.BigInteger;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "detalle")
-
 public class Detalle {
 
     @Id
@@ -29,6 +28,7 @@ public class Detalle {
 
     @ManyToOne
     @JoinColumn(name = "ID_FACTURA")
+    @JsonIgnore // Evita la recursividad infinita
     private Factura factura;
 
     @ManyToOne

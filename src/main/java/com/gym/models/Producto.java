@@ -1,10 +1,8 @@
 package com.gym.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -21,8 +19,9 @@ public class Producto {
     @Id
     private String id_producto;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne()
     @JoinColumn(name = "id_categoria", nullable = false)
+    @JsonIgnore
     private Categoria categoria;
 
     @Column(nullable = false)

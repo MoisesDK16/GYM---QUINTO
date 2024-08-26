@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -42,7 +42,7 @@ public class Producto {
     private BigDecimal precioVenta;
 
     @Column
-    private Date fecha_caducacion;
+    private LocalDate fecha_caducacion;
 
     @Column
     private String descripcion;

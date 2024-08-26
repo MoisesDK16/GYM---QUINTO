@@ -21,6 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -54,28 +58,31 @@ public class ProductoService {
     }
 
     public Producto registrar(String idProducto, Categoria categoria, String nombre, int stock, double precioCompra,
-                              double margenGanancia, double precioVenta, String descripcion,
+                              double margenGanancia, double precioVenta, String fecha_caducacion, String descripcion,
                               MultipartFile image) throws IOException {
 
         if (categoria == null || categoria.getId_categoria() == 0) {
             throw new IllegalArgumentException("La categoría no puede ser nula");
         }
 
+        Date fechaCaducacionDate = null;
+
         String idImg = uploadFileService.copy(image);
 
         String imageUrl = "http://localhost:8080/api/productos/uploads/" + idImg;
-        Producto producto = Producto.builder()
-                .idProducto(idProducto)
-                .categoria(categoria)
-                .nombre(nombre)
-                .stock(stock)
-                .precioCompra(BigDecimal.valueOf(precioCompra))
-                .margenGanancia(BigDecimal.valueOf(margenGanancia))
-                .precioVenta(BigDecimal.valueOf(precioVenta))
-                .descripcion(descripcion)
-                .imagen(imageUrl) // Asignar el nombre del archivo de la imagen
-                .build();
-
+        Producto producto = null;
+            producto = Producto.builder()
+                    .idProducto(idProducto)
+                    .categoria(categoria)
+                    .nombre(nombre)
+                    .stock(stock)
+                    .precioCompra(BigDecimal.valueOf(precioCompra))
+                    .margenGanancia(BigDecimal.valueOf(margenGanancia))
+                    .precioVenta(BigDecimal.valueOf(precioVenta))
+                    .fecha_caducacion(LocalDate.parse(fecha_caducacion))
+                    .descripcion(descripcion)
+                    .imagen(imageUrl)
+                    .build();
         return productoRepository.save(producto);
     }
 

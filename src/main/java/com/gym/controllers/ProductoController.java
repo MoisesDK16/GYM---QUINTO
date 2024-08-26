@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.sql.Date;
 
 
 @RestController
@@ -66,6 +67,7 @@ public class ProductoController {
             @RequestParam("precioCompra") double precioCompra,
             @RequestParam("margenGanancia") double margenGanancia,
             @RequestParam("precioVenta") double precioVenta,
+            @RequestParam("fecha_caducacion") Date fecha_caducacion,
             @RequestParam("descripcion") String descripcion,
             @RequestParam("imagen") MultipartFile imagen) throws IOException {
 
@@ -73,7 +75,7 @@ public class ProductoController {
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
 
         Producto productoGuardado = productoService.registrar(idProducto, categoria, nombre, stock, precioCompra,
-                margenGanancia, precioVenta, descripcion, imagen);
+                margenGanancia, precioVenta, String.valueOf(fecha_caducacion), descripcion, imagen);
 
         return new ResponseEntity<>(productoGuardado, HttpStatus.OK);
     }

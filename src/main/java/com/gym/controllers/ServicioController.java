@@ -4,10 +4,12 @@ import com.gym.models.Categoria;
 import com.gym.models.Servicio;
 import com.gym.services.ServicioService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -21,9 +23,9 @@ public class ServicioController {
         return new ResponseEntity<>(servicioCreado,HttpStatus.CREATED);
     }
 
-    @PostMapping("/actualizar")
-    public ResponseEntity<Void> actualizarServicio(@RequestBody Servicio servicio){
-        service.actualizarServicio(servicio);
+    @PutMapping("/actualizar/{id_servicio}")
+    public ResponseEntity<Void> actualizarServicio(@PathVariable Integer id_servicio, @RequestBody Servicio servicio){
+        service.actualizarServicio(id_servicio,servicio);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -33,25 +35,20 @@ public class ServicioController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @GetMapping("/all")
-    public ResponseEntity<Page<Servicio>> listarServicios(
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "10") int size){
-        return ResponseEntity.ok(service.listarServicios(page, size));
+    public ResponseEntity<List<Servicio>> listarServicios(){
+        return ResponseEntity.ok(service.listarServicios());
     }
 
     @GetMapping("uno/{id}")
-    public ResponseEntity<Servicio> buscarServicioPorId(@PathVariable Integer id){
-        Servicio servicio = service.obtenerServicio(id);
+    public ResponseEntity<Optional<Servicio>> buscarServicioPorId(@PathVariable Integer id){
+        Optional<Servicio> servicio = service.obtenerServicio(id);
         return ResponseEntity.ok(servicio);
     }
 
     @GetMapping("/servicios-por-categoria")
-    public ResponseEntity<Page<Servicio>> serviciosPorCategoria(
-            @RequestPart Categoria categoria,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "10") int size){
-        return ResponseEntity.ok(service.ServiciosPorCategoria(categoria, page, size));
+    public ResponseEntity<List<Servicio>> serviciosPorCategoria(
+            @RequestBody Categoria categoria){
+        return ResponseEntity.ok(service.ServiciosPorCategoria(categoria));
     }
 }

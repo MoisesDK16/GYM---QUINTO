@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -27,8 +29,9 @@ public class ServicioService {
         return categoriaRepository.findByCategoria(nombre).orElseThrow();
     }
 
-    public Servicio obtenerServicio(Integer id){
-        return repository.findById(id).orElseThrow();
+    public Optional<Servicio> obtenerServicio(Integer id){
+        return Optional.ofNullable(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado")));
     }
 
     public Servicio crearServicio(Servicio servicio) {
@@ -45,21 +48,24 @@ public class ServicioService {
         }
     }
 
-
-    public void actualizarServicio(Servicio servicio) {
-        var servicioEncontrado = obtenerServicio(servicio.getId_servicio());
-        if (servicio.getNombre() != null) servicioEncontrado.setNombre(servicio.getNombre());
-        if (servicio.getCategoria() != null) servicioEncontrado.setCategoria(servicio.getCategoria());
-        if (servicio.getPrecio() != null) servicioEncontrado.setPrecio(servicio.getPrecio());
-        repository.save(servicioEncontrado);
+    public void actualizarServicio(Integer id_servicio, Servicio servicio) {
+        Optional<Servicio> servicioEncontrado = Optional.ofNullable(obtenerServicio(id_servicio).
+                orElseThrow(() -> new RuntimeException("Servicio no encontrado")));
+        if (servicioEncontrado.isPresent()) {
+            Servicio s = servicioEncontrado.get();
+            if (servicio.getNombre() != null) s.setNombre(servicio.getNombre());
+            if (servicio.getCategoria() != null) s.setCategoria(servicio.getCategoria());
+            if (servicio.getPrecio() != null) s.setPrecio(servicio.getPrecio());
+            repository.save(s);
+        }
     }
 
-    public Page<Servicio> ServiciosPorCategoria(Categoria categoria, int page, int size){
-        return repository.findAllByCategoria(categoria, PageRequest.of(page, size));
+    public List<Servicio> ServiciosPorCategoria(Categoria categoria) {
+        return repository.findAllByCategoria(categoria);
     }
 
-    public Page<Servicio> listarServicios(int page, int size){
-        return repository.findAll(PageRequest.of(page, size));
+    public List<Servicio> listarServicios(){
+        return repository.findAll();
     }
 
     public void eliminarServicio(Integer id_servicio){

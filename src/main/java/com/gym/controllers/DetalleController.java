@@ -32,5 +32,4 @@ public class DetalleController {
         return new ResponseEntity<>(listaDetalles,HttpStatus.OK);
     }
 
-
 }

@@ -1,10 +1,8 @@
 package com.gym.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -50,6 +48,7 @@ public class Factura {
     private BigDecimal total;
 
     @OneToMany(mappedBy = "factura")
+    @JsonIgnore
     List<Detalle> detalles;
 
 }

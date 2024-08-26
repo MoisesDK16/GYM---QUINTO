@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ServicioRepository extends JpaRepository<Servicio, Integer> {
-    Page<Servicio> findAllByCategoria(Categoria categoria, Pageable pageable);
+    List<Servicio> findAllByCategoria(Categoria categoria);
     Servicio findByNombreContainingIgnoreCase(String nombre);
 }

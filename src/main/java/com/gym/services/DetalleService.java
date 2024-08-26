@@ -41,8 +41,8 @@ public class DetalleService {
             throw new IllegalArgumentException("ID de Factura no puede ser nulo");
         }
 
-        if (detalle.getProducto() != null && detalle.getProducto().getId_producto() != null) {
-            producto = productoRepository.findById(detalle.getProducto().getId_producto())
+        if (detalle.getProducto() != null && detalle.getProducto().getIdProducto() != null) {
+            producto = productoRepository.findById(detalle.getProducto().getIdProducto())
                     .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 
         } else {

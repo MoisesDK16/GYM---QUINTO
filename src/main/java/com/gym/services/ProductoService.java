@@ -65,8 +65,6 @@ public class ProductoService {
             throw new IllegalArgumentException("La categoría no puede ser nula");
         }
 
-        Date fechaCaducacionDate = null;
-
         String idImg = uploadFileService.copy(image);
 
         String imageUrl = "http://localhost:8080/api/productos/uploads/" + idImg;
@@ -87,46 +85,39 @@ public class ProductoService {
     }
 
 
-    public Producto actualizar(String id_producto, Producto producto) {
+    public Producto actualizar(String idProducto, String nombre ,  Integer categoriaId, int stock, double precioCompra,
+                               double margenGanancia, double precioVenta, String fechaCaducacion,
+                               String descripcion, MultipartFile image) throws IOException {
 
-        if (id_producto == null || id_producto.trim().isEmpty()) {
+        if (idProducto == null || idProducto.trim().isEmpty()) {
             throw new IllegalArgumentException("El ID del producto no debe ser nulo o vacío");
         }
 
-        if (Stream.of(
-                        producto.getCategoria(),
-                        producto.getNombre(),
-                        producto.getStock(),
-                        producto.getPrecioCompra(),
-                        producto.getMargenGanancia(),
-                        producto.getPrecioVenta())
-                .allMatch(Objects::isNull)) {
-            throw new IllegalArgumentException("Debe completar los campos no nulos");
-        }
+        Producto productoExistente = productoRepository.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto con id " + idProducto + " no encontrado"));
 
-        Producto productoExistente = productoRepository.findById(id_producto)
-                .orElseThrow(() -> new RuntimeException("Producto con id " + id_producto + " no encontrado"));
-
-        // Asegúrate de que la categoría está gestionada por el contexto de persistencia
-        Categoria categoria = producto.getCategoria();
-        if (categoria != null && categoria.getId_categoria() != 0) {
-            categoria = categoriaRepository.findById(categoria.getId_categoria())
-                    .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+        if (categoriaId != null) {
+            Categoria categoria = categoriaRepository.findById(categoriaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Categoría con id " + categoriaId + " no encontrada"));
             productoExistente.setCategoria(categoria);
-        } else {
-            throw new IllegalArgumentException("La categoría no puede ser nula");
         }
+        productoExistente.setNombre(nombre);
+        productoExistente.setStock(stock);
+        productoExistente.setPrecioCompra(BigDecimal.valueOf(precioCompra));
+        productoExistente.setMargenGanancia(BigDecimal.valueOf(margenGanancia));
+        productoExistente.setPrecioVenta(BigDecimal.valueOf(precioVenta));
+        productoExistente.setFecha_caducacion(LocalDate.parse(fechaCaducacion));
+        productoExistente.setDescripcion(descripcion);
 
-        productoExistente.setNombre(producto.getNombre());
-        productoExistente.setStock(producto.getStock());
-        productoExistente.setPrecioCompra(producto.getPrecioCompra());
-        productoExistente.setMargenGanancia(producto.getMargenGanancia());
-        productoExistente.setPrecioVenta(producto.getPrecioVenta());
-        productoExistente.setFecha_caducacion(producto.getFecha_caducacion());
-        productoExistente.setDescripcion(producto.getDescripcion());
+        String idImg = uploadFileService.copy(image);
+
+        String imageUrl = "http://localhost:8080/api/productos/uploads/" + idImg;
+
+        productoExistente.setImagen(imageUrl);
 
         return productoRepository.save(productoExistente);
     }
+
 
     public void actualizarStock(String id_producto, int cantidad) {
         Producto producto = productoRepository.findById(id_producto)
@@ -137,7 +128,7 @@ public class ProductoService {
     }
 
 
-    public void eliminar(String id) {
+    public void eliminar(String id){
         productoRepository.deleteById(id);
     }
 

@@ -5,6 +5,7 @@ import com.gym.models.Producto;
 import com.gym.repositories.CategoriaRepository;
 import com.gym.services.ProductoService;
 import com.gym.services.files.UploadFileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -21,19 +22,12 @@ import java.sql.Date;
 
 @RestController
 @RequestMapping("/api/productos")
+@RequiredArgsConstructor
 public class ProductoController {
 
-    @Autowired
-    private ProductoService productoService;
-    @Autowired
-    private CategoriaRepository categoriaRepository;
-
-    @Autowired
-    private UploadFileService uploadFileService;
-
-    public ProductoController(ProductoService productoService) {
-        this.productoService = productoService;
-    }
+    private final ProductoService productoService;
+    private final CategoriaRepository categoriaRepository;
+    private final UploadFileService uploadFileService;
 
     @GetMapping("/all")
     public ResponseEntity<Page<Producto>> findAll(@RequestParam int page, @RequestParam int size) {
@@ -81,8 +75,23 @@ public class ProductoController {
     }
 
     @PutMapping("/actualizar/{id_producto}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable String id_producto, @RequestBody Producto producto) {
-        Producto productoActualizado = productoService.actualizar(id_producto,producto);
+    public ResponseEntity<Producto> actualizarProducto(
+            @PathVariable String id_producto,
+            @RequestParam("categoriaId") Integer categoriaId,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("stock") int stock,
+            @RequestParam("precioCompra") double precioCompra,
+            @RequestParam("margenGanancia") double margenGanancia,
+            @RequestParam("precioVenta") double precioVenta,
+            @RequestParam("fecha_caducacion") String fecha_caducacion,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("imagen") MultipartFile imagen) throws IOException {
+
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+
+        Producto productoActualizado = productoService.actualizar(id_producto, nombre ,categoriaId, stock,
+                precioCompra, margenGanancia, precioVenta, fecha_caducacion, descripcion, imagen);
         return new ResponseEntity<>(productoActualizado, HttpStatus.OK);
     }
 

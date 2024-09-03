@@ -77,7 +77,7 @@ public class ProductoController {
     @PutMapping("/actualizar/{id_producto}")
     public ResponseEntity<Producto> actualizarProducto(
             @PathVariable String id_producto,
-            @RequestParam("categoriaId") Integer categoriaId,
+            @RequestParam("id_categoria") Integer categoriaId,
             @RequestParam("nombre") String nombre,
             @RequestParam("stock") int stock,
             @RequestParam("precioCompra") double precioCompra,

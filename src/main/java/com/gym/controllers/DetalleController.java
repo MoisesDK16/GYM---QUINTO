@@ -32,4 +32,10 @@ public class DetalleController {
         return new ResponseEntity<>(listaDetalles,HttpStatus.OK);
     }
 
+    @GetMapping("unoDetalle/{idDetalle}")
+    public ResponseEntity<Detalle> unoDetalle(@PathVariable Integer idDetalle){
+        Detalle detalle = detalleService.unoDetalle(idDetalle);
+        return new ResponseEntity<>(detalle,HttpStatus.OK);
+    }
+
 }

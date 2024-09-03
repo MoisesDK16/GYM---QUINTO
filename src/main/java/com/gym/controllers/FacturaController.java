@@ -2,27 +2,28 @@ package com.gym.controllers;
 
 import com.gym.models.Factura;
 import com.gym.services.FacturaService;
-import com.lowagie.text.Document;
-import com.lowagie.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.gym.services.files.ListarDetallesFactura;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/facturas")
+@RequiredArgsConstructor
 public class FacturaController {
 
-    @Autowired
-    private FacturaService facturaService;
+    private final FacturaService facturaService;
 
-    @Autowired
-    private ListarDetallesFactura listarDetallesFactura;
+    private final ListarDetallesFactura listarDetallesFactura;
 
     @PostMapping("/generar")
     public ResponseEntity<Factura> generarFactura(@RequestBody Factura factura) {
@@ -44,26 +45,28 @@ public class FacturaController {
         return new ResponseEntity<>(listaFacturas, HttpStatus.OK);
     }
 
-    @GetMapping("/DownloadPdf/{facturaId}")
-    public void downloadFacturaPdf(@PathVariable Integer facturaId, HttpServletResponse response) throws Exception {
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=\"facturaPersonal.pdf\"");
-
-        Document document = new Document();
-        PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
-
+    @GetMapping(value = "/DownloadPdf/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
+    public void downloadPDF(@PathVariable Integer id, HttpServletResponse response) {
         try {
-            document.open();
-            listarDetallesFactura.buildPdfDocument(facturaId, document, writer, null, response);
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error generating PDF");
-        } finally {
-            document.close();
+            response.setContentType("application/pdf");
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura_" + id + ".pdf");
+
+            listarDetallesFactura.buildPdfDocument(id, response);
+        } catch (IOException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            try {
+                response.getWriter().write("Error al generar el documento PDF: " + e.getMessage());
+                response.getWriter().flush();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
+
 
     @GetMapping("/last/{id_cliente}")
     public Optional<Factura> getLastFactura(@PathVariable String id_cliente) {
         return facturaService.findLastFactura(id_cliente);
     }
 }
+

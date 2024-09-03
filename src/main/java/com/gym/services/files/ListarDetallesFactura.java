@@ -3,137 +3,172 @@ package com.gym.services.files;
 import com.gym.models.Detalle;
 import com.gym.models.Factura;
 import com.gym.services.DetalleService;
+import com.lowagie.text.*;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import com.lowagie.text.Document;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Service("ListarDetallesFactura")
-public class ListarDetallesFactura{
+@Service
+@RequiredArgsConstructor
+public class ListarDetallesFactura {
 
     private final DetalleService detalleService;
+    private static final Image logoImg;
 
-    @Autowired
-    public ListarDetallesFactura(DetalleService detalleService) {
-        this.detalleService = detalleService;
+    static {
+        try (InputStream fis = new ClassPathResource("img/logoGYM.JPG").getInputStream()) {
+            byte[] imageBytes = fis.readAllBytes();
+            logoImg = Image.getInstance(imageBytes);
+            logoImg.scaleToFit(150f, 75f);
+        } catch (IOException | com.lowagie.text.BadElementException e) {
+            throw new IllegalStateException("Error al cargar el logotipo para el PDF.", e);
+        }
     }
 
-    public void buildPdfDocument(Integer facturaId,Document document, PdfWriter writer,
-                                 HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void buildPdfDocument(Integer facturaId, HttpServletResponse response) throws IOException {
 
-        // Obtén los detalles de la factura por su ID
         List<Detalle> listarDetallesFactura = detalleService.listarDetallesFactura(facturaId);
         if (listarDetallesFactura.isEmpty()) {
-            throw new Exception("No se encontraron detalles para la factura con ID " + facturaId);
+            throw new IOException("No se encontraron detalles para la factura con ID " + facturaId);
         }
 
-        Factura facturaAsoc = listarDetallesFactura.get(listarDetallesFactura.size() - 1).getFactura();
+        Factura facturaAsoc = listarDetallesFactura.get(0).getFactura();
 
-        // Configuración del documento PDF
-        document.setPageSize(PageSize.LETTER);
-        document.setMargins(36, 36, 72, 36);
-        document.open();
+        try (var baos = new ByteArrayOutputStream(); var document = new Document()) {
+            PdfWriter.getInstance(document, baos);
+            document.open();
 
-        // Fuente personalizada
-        Font fuenteTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, Color.BLACK);
-        Font fuenteSubtitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);
-        Font fuenteTexto = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
+            document.setPageSize(PageSize.LETTER);
+            document.setMargins(36, 36, 72, 36);
 
-        // Título
-        PdfPTable tablaTitulo = new PdfPTable(1);
-        PdfPCell celdaTitulo = new PdfPCell(new Phrase("Gym Ciudad Verde", fuenteTitulo));
-        celdaTitulo.setBorder(0);
-        celdaTitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
-        celdaTitulo.setPadding(15);
-        tablaTitulo.addCell(celdaTitulo);
-        tablaTitulo.setSpacingAfter(20);
-        document.add(tablaTitulo);
+            document.add(initTable());
+            document.add(getHeaderTable(facturaAsoc));
 
-        // Datos de la factura y del cliente
-        PdfPTable tablaInfo = new PdfPTable(2);
-        tablaInfo.setWidthPercentage(100);
-        tablaInfo.setSpacingAfter(20);
+            var detallesTitle = new Paragraph("Detalles de Factura", new Font(Font.HELVETICA, 14, Font.BOLD));
+            detallesTitle.setSpacingBefore(20f);
+            detallesTitle.setSpacingAfter(10f);
+            document.add(detallesTitle);
 
-        PdfPCell celdaFecha = new PdfPCell(new Phrase("Fecha: " + facturaAsoc.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fuenteTexto));
-        celdaFecha.setBorder(0);
-        tablaInfo.addCell(celdaFecha);
+            document.add(getDetallesTable(listarDetallesFactura));
+            document.add(getTotalesTable(facturaAsoc));
+            document.add(getMetodoPagoTable(facturaAsoc));
 
-        PdfPCell celdaCliente = new PdfPCell(new Phrase("Datos del Cliente:\n" +
-                "Identificación: " + facturaAsoc.getCliente().getId_cliente() + "\n" +
-                "Nombre: " + facturaAsoc.getCliente().getNombre() + "\n" +
-                "Mail: " + facturaAsoc.getCliente().getCorreo() + "\n" +
-                "Teléfono: " + facturaAsoc.getCliente().getTelefono(), fuenteTexto));
-        celdaCliente.setBorder(0);
-        tablaInfo.addCell(celdaCliente);
+            document.close(); // Cerrar el documento antes de escribir el flujo de salida
 
-        document.add(tablaInfo);
+            // Escribir el contenido del PDF al flujo de salida de la respuesta
+            response.getOutputStream().write(baos.toByteArray());
+            response.getOutputStream().flush(); // Asegurar que el flujo se vacíe completamente
+        } catch (DocumentException e) {
+            throw new IOException("Error al generar el documento PDF.", e);
+        }
+    }
 
-        // Tabla de conceptos
-        PdfPTable tablaConceptos = new PdfPTable(4);
-        tablaConceptos.setWidths(new float[]{4f, 1f, 1f, 1f});
-        tablaConceptos.setWidthPercentage(100);
-        tablaConceptos.setSpacingAfter(20);
+    private static PdfPTable initTable() {
+        var initTable = new PdfPTable(2);
+        initTable.setWidthPercentage(100);
+        initTable.setWidths(new float[]{1f, 3f});
+        initTable.setSpacingAfter(5f);
 
-        // Cabecera de la tabla de conceptos
+        var titleCell = new PdfPCell(new Phrase("Resumen de la Factura", new Font(Font.HELVETICA, 12, Font.BOLD)));
+        titleCell.setBorder(Rectangle.NO_BORDER);
+        titleCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        titleCell.setPaddingTop(15f);
+
+        var logoCell = new PdfPCell(logoImg);
+        logoCell.setBorder(Rectangle.NO_BORDER);
+        logoCell.setMinimumHeight(30f);
+
+        initTable.addCell(logoCell);
+        initTable.addCell(titleCell);
+        return initTable;
+    }
+
+    private static PdfPTable getHeaderTable(Factura factura) {
+        var headerTable = new PdfPTable(2);
+        headerTable.setWidthPercentage(100);
+        headerTable.setWidths(new float[]{1f, 3f});
+        headerTable.setSpacingAfter(20f);
+
+        var clientCell = new PdfPCell(new Phrase(
+                "Cliente ID: " + factura.getCliente().getId_cliente() + "\n" +
+                        "Nombre: " + factura.getCliente().getNombre() + " " + factura.getCliente().getPrimer_apellido() + "\n\n" +
+                        "Factura No. " + factura.getIdFactura() + "\n" +
+                        "Fecha de Emisión: " + factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+        clientCell.setBorder(Rectangle.NO_BORDER);
+        clientCell.setPaddingTop(10f);
+        headerTable.addCell(clientCell);
+
+        var pageCell = new PdfPCell(new Phrase("Página 1 de 1"));
+        pageCell.setBorder(Rectangle.NO_BORDER);
+        pageCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        pageCell.setPaddingTop(10f);
+        headerTable.addCell(pageCell);
+
+        return headerTable;
+    }
+
+    private static PdfPTable getDetallesTable(List<Detalle> detalles) {
+        var detallesTable = new PdfPTable(4);
+        detallesTable.setWidths(new float[]{4f, 1f, 1f, 1f});
+        detallesTable.setWidthPercentage(100);
+        detallesTable.setSpacingAfter(20f);
+
         String[] subtitulos = {"Concepto", "Cantidad", "Precio", "Total"};
         for (String subtitulo : subtitulos) {
-            PdfPCell celdaSubtitulo = new PdfPCell(new Phrase(subtitulo, fuenteSubtitulo));
-            celdaSubtitulo.setBackgroundColor(new Color(0, 102, 204)); // Azul oscuro
+            var celdaSubtitulo = new PdfPCell(new Phrase(subtitulo, new Font(Font.HELVETICA, 10, Font.BOLD)));
             celdaSubtitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
             celdaSubtitulo.setPadding(8);
-            tablaConceptos.addCell(celdaSubtitulo);
+            detallesTable.addCell(celdaSubtitulo);
         }
 
-        // Detalles de los conceptos
-        for (Detalle detalle : listarDetallesFactura) {
-            tablaConceptos.addCell(new PdfPCell(new Phrase(detalle.getProducto().getNombre(), fuenteTexto)));
-            tablaConceptos.addCell(new PdfPCell(new Phrase(String.valueOf(detalle.getCantidad()), fuenteTexto)));
-            tablaConceptos.addCell(new PdfPCell(new Phrase(String.valueOf(detalle.getPrecio()), fuenteTexto)));
-            tablaConceptos.addCell(new PdfPCell(new Phrase(String.valueOf(detalle.getTotal()), fuenteTexto)));
+        for (Detalle detalle : detalles) {
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getProducto().getNombre(), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(String.valueOf(detalle.getCantidad()), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f", detalle.getPrecio()), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f", detalle.getTotal()), new Font(Font.HELVETICA, 10))));
         }
 
-        document.add(tablaConceptos);
+        return detallesTable;
+    }
 
-        // Tabla de totales
-        PdfPTable tablaTotales = new PdfPTable(2);
-        tablaTotales.setWidthPercentage(40);
-        tablaTotales.setHorizontalAlignment(Element.ALIGN_RIGHT);
+    private static PdfPTable getTotalesTable(Factura factura) {
+        var totalesTable = new PdfPTable(2);
+        totalesTable.setWidthPercentage(40);
+        totalesTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
-        // Añadir filas de totales
-        tablaTotales.addCell(new PdfPCell(new Phrase("Subtotal", fuenteTexto)));
-        tablaTotales.addCell(new PdfPCell(new Phrase(String.format("%.2f $", facturaAsoc.getSubtotal()), fuenteTexto)));
+        totalesTable.addCell(new PdfPCell(new Phrase("Subtotal", new Font(Font.HELVETICA, 10))));
+        totalesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f $", factura.getSubtotal()), new Font(Font.HELVETICA, 10))));
 
-        tablaTotales.addCell(new PdfPCell(new Phrase("IVA (15%)", fuenteTexto)));
-        tablaTotales.addCell(new PdfPCell(new Phrase(String.format("%.2f $", facturaAsoc.getIva()), fuenteTexto)));
+        totalesTable.addCell(new PdfPCell(new Phrase("IVA (15%)", new Font(Font.HELVETICA, 10))));
+        totalesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f $", factura.getIva()), new Font(Font.HELVETICA, 10))));
 
-        tablaTotales.addCell(new PdfPCell(new Phrase("Total", fuenteTexto)));
-        tablaTotales.addCell(new PdfPCell(new Phrase(String.format("%.2f $", facturaAsoc.getTotal()), fuenteTexto)));
+        totalesTable.addCell(new PdfPCell(new Phrase("Total", new Font(Font.HELVETICA, 10))));
+        totalesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f $", factura.getTotal()), new Font(Font.HELVETICA, 10))));
 
-        document.add(tablaTotales);
+        return totalesTable;
+    }
 
-        // Método de pago
-        PdfPTable tablaPago = new PdfPTable(1);
-        tablaPago.setWidthPercentage(100);
-        tablaPago.setSpacingBefore(20);
+    private static PdfPTable getMetodoPagoTable(Factura factura) {
+        var metodoPagoTable = new PdfPTable(1);
+        metodoPagoTable.setWidthPercentage(100);
+        metodoPagoTable.setSpacingBefore(20f);
 
-        PdfPCell celdaPago = new PdfPCell(new Phrase("Forma de pago: " + facturaAsoc.getMetodoPago(), fuenteTexto));
-        celdaPago.setBorder(0);
-        tablaPago.addCell(celdaPago);
+        var celdaPago = new PdfPCell(new Phrase("Forma de pago: " + factura.getMetodoPago(), new Font(Font.HELVETICA, 10)));
+        celdaPago.setBorder(Rectangle.NO_BORDER);
+        metodoPagoTable.addCell(celdaPago);
 
-        document.add(tablaPago);
+        return metodoPagoTable;
     }
 }

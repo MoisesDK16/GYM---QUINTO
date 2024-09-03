@@ -83,4 +83,8 @@ public class DetalleService {
 
         return listaDetalles;
     }
+
+    public Detalle unoDetalle(Integer idDetalle) {
+        return detalleRepository.getByIdDetalle(idDetalle);
+    }
 }

@@ -1,12 +1,13 @@
 package com.gym.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Entity
@@ -19,7 +20,7 @@ public class Plan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id_plan;
+    private Integer id_plan;
 
     @Column
     private String nombre;
@@ -32,4 +33,12 @@ public class Plan {
 
     @Column
     private String descripcion;
+
+    @ManyToMany
+    @JoinTable(
+            name = "servicio_x_plan", // Nombre de la tabla intermedia
+            joinColumns = @JoinColumn(name = "id_plan"), // Clave foránea de la tabla "plan"
+            inverseJoinColumns = @JoinColumn(name = "id_servicio") // Clave foránea de la tabla "servicio"
+    )
+    private List<Servicio> servicios;
 }

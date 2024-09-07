@@ -1,14 +1,18 @@
 package com.gym.services;
 
 import com.gym.models.Plan;
+import com.gym.models.Servicio;
 import com.gym.repositories.PlanRepository;
+import com.gym.repositories.ServicioRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -16,13 +20,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 @Transactional
 @Log4j2
+@RequiredArgsConstructor
 public class PlanService {
 
-    private PlanRepository planRepository;
-
-    public PlanService(PlanRepository planRepository) {
-        this.planRepository = planRepository;
-    }
+    private final PlanRepository planRepository;
+    private final ServicioRepository servicioRepository;
 
     public Page<Plan> listar(int page, int size){
         return planRepository.findAll(PageRequest.of(page, size));
@@ -45,6 +47,42 @@ public class PlanService {
                 .build();
         return planRepository.save(nuevoPlan);
     }
+
+    public void agregarServicio(int id_plan, int id_servicio) {
+        Plan planExistente = planRepository.findById(id_plan)
+                .orElseThrow(() -> new IllegalArgumentException("ID de plan inválido"));
+
+        Servicio servicioExistente = servicioRepository.findById(id_servicio)
+                .orElseThrow(() -> new IllegalArgumentException("ID de servicio inválido"));
+
+        planExistente.getServicios().add(servicioExistente);
+
+        BigDecimal nuevoCosto = planExistente.getCosto().add(servicioExistente.getPrecio());
+        planExistente.setCosto(nuevoCosto);
+
+        planRepository.save(planExistente);
+
+        log.info("Servicio: " + servicioExistente + " agregado al Plan: " + planExistente);
+    }
+
+    public void eliminarServicio(int id_plan, int id_servicio) {
+        Plan planExistente = planRepository.findById(id_plan)
+                .orElseThrow(() -> new IllegalArgumentException("ID de plan inválido"));
+
+        Servicio servicioExistente = servicioRepository.findById(id_servicio)
+                .orElseThrow(() -> new IllegalArgumentException("ID de servicio inválido"));
+
+        planExistente.getServicios().remove(servicioExistente);
+
+        BigDecimal nuevoCosto = planExistente.getCosto().subtract(servicioExistente.getPrecio());
+        planExistente.setCosto(nuevoCosto);
+
+        planRepository.save(planExistente);
+
+        log.info("Servicio: " + servicioExistente + " eliminado del Plan: " + planExistente);
+    }
+
+
 
     public Plan actualizar(int id_plan, Plan plan) {
 

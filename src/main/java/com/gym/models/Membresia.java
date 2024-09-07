@@ -39,6 +39,9 @@ public class Membresia {
     @Temporal(TemporalType.DATE)
     private Date fechaFin;
 
+    @Column(name = "DIAS_RESTANTES", length = 20)
+    private Integer dias_restantes;
+
     @Column(name = "ESTADO", length = 20)
     private String estado;
 }

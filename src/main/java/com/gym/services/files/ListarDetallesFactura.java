@@ -65,7 +65,7 @@ public class ListarDetallesFactura {
             document.add(getTotalesTable(facturaAsoc));
             document.add(getMetodoPagoTable(facturaAsoc));
 
-            document.close(); // Cerrar el documento antes de escribir el flujo de salida
+            document.close();
 
             // Escribir el contenido del PDF al flujo de salida de la respuesta
             response.getOutputStream().write(baos.toByteArray());

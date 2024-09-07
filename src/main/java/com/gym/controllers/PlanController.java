@@ -1,6 +1,7 @@
 package com.gym.controllers;
 
 import com.gym.models.Plan;
+import com.gym.models.Servicio;
 import com.gym.services.PlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -36,6 +38,18 @@ public class PlanController {
     public ResponseEntity<Plan> crearPlan(@RequestBody Plan plan) {
         Plan nuevoPlan = planService.registrar(plan);
         return new ResponseEntity<>(nuevoPlan, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/agregar-servicio")
+    public ResponseEntity<String> agregarServicio(@RequestParam Integer id_plan, @RequestParam Integer id_servicio) {
+        planService.agregarServicio(id_plan, id_servicio);
+        return ResponseEntity.ok("Servicio agregado correctamente");
+    }
+
+    @PostMapping("/eliminar-servicio")
+    public ResponseEntity<String> eliminarServicio(@RequestParam Integer id_plan, @RequestParam Integer id_servicio) {
+        planService.eliminarServicio(id_plan, id_servicio);
+        return ResponseEntity.ok("Servicio eliminado correctamente");
     }
 
     @PutMapping("/actualizar/{id}")

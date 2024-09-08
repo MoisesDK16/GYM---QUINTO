@@ -9,7 +9,6 @@ import com.gym.repositories.PlanRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.stereotype.Service;
 
 @Service

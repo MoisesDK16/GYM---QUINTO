@@ -22,7 +22,7 @@ public class Plan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_plan;
 
-    @Column
+    @Column(nullable = false)
     private String nombre;
 
     @Column(nullable = false)
@@ -33,6 +33,9 @@ public class Plan {
 
     @Column
     private String descripcion;
+
+    @Column
+    private String imagen;
 
     @ManyToMany
     @JoinTable(

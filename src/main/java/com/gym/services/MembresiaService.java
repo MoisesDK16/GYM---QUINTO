@@ -9,7 +9,11 @@ import com.gym.repositories.PlanRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -45,5 +49,12 @@ public class MembresiaService {
         return membresiaRepository.save(nuevaMembresia);
     }
 
+    public Page<Membresia> listar(int page, int size) {
+        return membresiaRepository.findAll(PageRequest.of(page, size));
+    }
 
+    public Optional<Membresia> uno(int id) {
+        return Optional.ofNullable(membresiaRepository.findById(id)
+                .orElseThrow((() -> new IllegalArgumentException("Membresia no encontrada"))));
+    }
 }

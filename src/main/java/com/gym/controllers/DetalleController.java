@@ -26,6 +26,16 @@ public class DetalleController {
         }
     }
 
+    @PostMapping("/generar-detalle-membresia")
+    public ResponseEntity<Detalle> generarDetalleMembresia(@RequestBody Detalle detalle){
+        try{
+            Detalle detalleCreado = detalleService.guardarDetalleMembresia(detalle);
+            return new ResponseEntity<>(detalleCreado ,HttpStatus.CREATED);
+        }catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping("listar/{idFactura}")
     public ResponseEntity<List<Detalle>> listarDetallesFactura(@PathVariable Integer idFactura){
         List<Detalle> listaDetalles = detalleService.listarDetallesFactura(idFactura);

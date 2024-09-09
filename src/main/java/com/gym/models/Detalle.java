@@ -1,6 +1,5 @@
 package com.gym.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +20,7 @@ public class Detalle {
     private Integer idDetalle;
 
     @ManyToOne
-    @JoinColumn(name = "ID_PRODUCTO", nullable = true)
+    @JoinColumn(name = "ID_PRODUCTO")
     private Producto producto;
 
     @ManyToOne
@@ -29,7 +28,7 @@ public class Detalle {
     private Factura factura;
 
     @ManyToOne
-    @JoinColumn(name = "ID_MEMBRESIA", nullable = true)
+    @JoinColumn(name = "ID_MEMBRESIA")
     private Membresia membresia;
 
     @Column(name = "PRECIO", precision = 4, scale = 2)

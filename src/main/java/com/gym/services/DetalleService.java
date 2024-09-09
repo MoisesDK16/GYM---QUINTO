@@ -3,11 +3,14 @@ package com.gym.services;
 
 import com.gym.models.Detalle;
 import com.gym.models.Factura;
+import com.gym.models.Membresia;
 import com.gym.models.Producto;
 import com.gym.repositories.DetalleRepository;
 import com.gym.repositories.FacturaRepository;
+import com.gym.repositories.MembresiaRepository;
 import com.gym.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +20,13 @@ import java.util.List;
 @Service
 @Transactional
 @Log4j2
+@RequiredArgsConstructor
 public class DetalleService {
 
     private final ProductoRepository productoRepository;
     private final FacturaRepository facturaRepository;
     private final DetalleRepository detalleRepository;
-
-    public DetalleService(ProductoRepository productoRepository, FacturaRepository facturaRepository, DetalleRepository detalleRepository) {
-        this.productoRepository = productoRepository;
-        this.facturaRepository = facturaRepository;
-        this.detalleRepository = detalleRepository;
-    }
+    private final MembresiaRepository membresiaRepository;
 
     public Detalle guardarDetalleProducto(Detalle detalle) {
 
@@ -61,6 +60,39 @@ public class DetalleService {
 
         Detalle detalleBuilder = Detalle.builder()
                 .producto(producto)
+                .factura(facturaReferencia)
+                .precio(detalle.getPrecio())
+                .cantidad(detalle.getCantidad())
+                .total(detalle.getTotal())
+                .build();
+
+        return detalleRepository.save(detalleBuilder);
+    }
+
+    public Detalle guardarDetalleMembresia(Detalle detalle){
+        Membresia membresia = null;
+        Factura facturaReferencia = null;
+
+        if (detalle.getFactura() != null && detalle.getFactura().getIdFactura() != null) {
+            facturaReferencia = facturaRepository.findById(detalle.getFactura().getIdFactura())
+                    .orElseThrow(() -> new IllegalArgumentException("Factura no encontrada"));
+        }
+
+        if(detalle.getMembresia() != null && detalle.getMembresia().getIdMembresia() != null){
+            membresia = membresiaRepository.findById(detalle.getMembresia().getIdMembresia())
+                    .orElseThrow(() -> new IllegalArgumentException("Membresia no encontrada"));
+        }
+
+        if (detalle.getPrecio() == null || detalle.getPrecio().doubleValue() <= 0) {
+            throw new IllegalArgumentException("Precio no válido");
+        }
+
+        if (detalle.getCantidad() == null) {
+            throw new IllegalArgumentException("Cantidad no encontrada");
+        }
+
+        var detalleBuilder = Detalle.builder()
+                .membresia(membresia)
                 .factura(facturaReferencia)
                 .precio(detalle.getPrecio())
                 .cantidad(detalle.getCantidad())

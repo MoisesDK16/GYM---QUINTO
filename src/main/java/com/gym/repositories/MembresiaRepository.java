@@ -23,5 +23,4 @@ public interface MembresiaRepository extends JpaRepository<Membresia, Integer> {
 
     @Query("SELECT m FROM Membresia m WHERE m.estado = :estado")
     List<Membresia> findMembresiasByEstado(@Param("estado") String estado);
-
 }

@@ -13,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,4 +81,34 @@ public class MembresiaService {
     public List<Membresia> listarPorEstado(String estado) {
         return membresiaRepository.findMembresiasByEstado(estado);
     }
+
+    public Membresia renovarMembresia(Date fechaInicio, Date fechaFin, Integer idMembresia) {
+        Membresia membresia = membresiaRepository.findById(idMembresia)
+                .orElseThrow(() -> new IllegalArgumentException("Membresia no encontrada"));
+
+        Plan planAsoc = planRepository.findById(membresia.getPlan().getId_plan())
+                .orElseThrow(() -> new IllegalArgumentException("Plan no encontrado"));
+
+        membresia.setFechaInicio(fechaInicio);
+        membresia.setFechaFin(fechaFin);
+        membresia.setDias_restantes(membresia.getDias_restantes() + planAsoc.getDuracion_dias());
+        membresia.setEstado("ACTIVO");
+
+        return membresiaRepository.save(membresia);
+    }
+
+    public List<Membresia> desactivarMembresias() {
+
+        List<Membresia> desactivados = new ArrayList<>();
+
+        for (Membresia membresia : membresiaRepository.findAll()) {
+            if (membresia.getDias_restantes() == 0) {
+                membresia.setEstado("INACTIVO");
+                desactivados.add(membresiaRepository.save(membresia));
+            }
+        }
+
+        return desactivados;
+    }
+
 }

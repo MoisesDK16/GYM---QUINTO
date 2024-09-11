@@ -1,8 +1,11 @@
 package com.gym.services.files;
 
 import com.gym.models.Detalle;
+import com.gym.models.Membresia;
 import com.gym.models.Factura;
 import com.gym.services.DetalleService;
+import com.gym.services.FacturaService;
+import com.gym.services.MembresiaService;
 import com.lowagie.text.*;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +20,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ListarDetallesFactura {
+public class MembresiaFactura {
 
+    private final FacturaService facturaService;
     private final DetalleService detalleService;
     private static final Image logoImg;
 
@@ -37,29 +42,26 @@ public class ListarDetallesFactura {
 
     public void buildPdfDocument(Integer facturaId, HttpServletResponse response) throws IOException {
 
-        List<Detalle> listarDetallesFactura = detalleService.listarDetallesFactura(facturaId);
-        if (listarDetallesFactura.isEmpty()) {
-            throw new IOException("No se encontraron detalles para la factura con ID " + facturaId);
-        }
+        List<Detalle> DetallesfacturaAsoc = detalleService.listarDetallesFactura(facturaId);
 
-        Factura facturaAsoc = listarDetallesFactura.get(0).getFactura();
+        Factura facturaAsoc = DetallesfacturaAsoc.get(0).getFactura();
 
         try (var baos = new ByteArrayOutputStream(); var document = new Document()) {
             PdfWriter.getInstance(document, baos);
             document.open();
 
-            document.setPageSize(PageSize.LETTER);
+            document.setPageSize(PageSize.A3.rotate());
             document.setMargins(36, 36, 72, 36);
 
             document.add(initTable());
             document.add(getHeaderTable(facturaAsoc));
 
-            var detallesTitle = new Paragraph("Detalles de Factura", new Font(Font.HELVETICA, 14, Font.BOLD));
+            var detallesTitle = new Paragraph("Detalles de Membresía", new Font(Font.HELVETICA, 14, Font.BOLD));
             detallesTitle.setSpacingBefore(20f);
             detallesTitle.setSpacingAfter(10f);
             document.add(detallesTitle);
 
-            document.add(getDetallesTable(listarDetallesFactura));
+            document.add(getDetallesTable(DetallesfacturaAsoc));
             document.add(getTotalesTable(facturaAsoc));
             document.add(getMetodoPagoTable(facturaAsoc));
 
@@ -67,7 +69,7 @@ public class ListarDetallesFactura {
 
             // Escribir el contenido del PDF al flujo de salida de la respuesta
             response.getOutputStream().write(baos.toByteArray());
-            response.getOutputStream().flush(); // Asegurar que el flujo se vacíe completamente
+            response.getOutputStream().flush();
         } catch (DocumentException e) {
             throw new IOException("Error al generar el documento PDF.", e);
         }
@@ -117,13 +119,13 @@ public class ListarDetallesFactura {
         return headerTable;
     }
 
-    private static PdfPTable getDetallesTable(List<Detalle> detalles) {
-        var detallesTable = new PdfPTable(4);
-        detallesTable.setWidths(new float[]{4f, 1f, 1f, 1f});
+    private static PdfPTable getDetallesTable(List<Detalle> DetallesfacturaAsoc) {
+        var detallesTable = new PdfPTable(6);
+        detallesTable.setWidths(new float[]{2f, 2.6f, 1.7f, 2f, 2f, 2f});
         detallesTable.setWidthPercentage(100);
         detallesTable.setSpacingAfter(20f);
 
-        String[] subtitulos = {"Concepto", "Cantidad", "Precio", "Total"};
+        String[] subtitulos = {"Plan","Duracion_Dias", "Precio" , "Fecha de Inicio", "Fecha de Fin", "Estado"};
         for (String subtitulo : subtitulos) {
             var celdaSubtitulo = new PdfPCell(new Phrase(subtitulo, new Font(Font.HELVETICA, 10, Font.BOLD)));
             celdaSubtitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -131,11 +133,13 @@ public class ListarDetallesFactura {
             detallesTable.addCell(celdaSubtitulo);
         }
 
-        for (Detalle detalle : detalles) {
-            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getProducto().getNombre(), new Font(Font.HELVETICA, 10))));
-            detallesTable.addCell(new PdfPCell(new Phrase(String.valueOf(detalle.getCantidad()), new Font(Font.HELVETICA, 10))));
-            detallesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f", detalle.getPrecio()), new Font(Font.HELVETICA, 10))));
-            detallesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f", detalle.getTotal()), new Font(Font.HELVETICA, 10))));
+        for (Detalle detalle : DetallesfacturaAsoc) {
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getMembresia().getPlan().getNombre(), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getMembresia().getPlan().getDuracion_dias().toString(), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getMembresia().getPlan().getCosto().toString(), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getMembresia().getFechaInicio().toString(), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getMembresia().getFechaFin().toString(), new Font(Font.HELVETICA, 10))));
+            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getMembresia().getEstado(), new Font(Font.HELVETICA, 10))));
         }
 
         return detallesTable;

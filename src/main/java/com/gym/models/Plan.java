@@ -29,7 +29,7 @@ public class Plan {
     private BigDecimal costo;
 
     @Column(nullable = false)
-    private int duracion_dias;
+    private Integer duracion_dias;
 
     @Column
     private String descripcion;

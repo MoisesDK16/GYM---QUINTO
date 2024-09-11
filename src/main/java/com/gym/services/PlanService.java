@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -30,6 +31,10 @@ public class PlanService {
 
     public Page<Plan> listar(int page, int size){
         return planRepository.findAll(PageRequest.of(page, size));
+    }
+
+    public List<Plan> listar(){
+        return planRepository.findAll();
     }
 
     public Optional<Plan> buscarPlanId(int id){

@@ -30,6 +30,12 @@ public class PlanController {
         return new ResponseEntity<>(planes, HttpStatus.OK);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Plan>> listarPlanes() {
+        List<Plan> planes = planService.listar();
+        return new ResponseEntity<>(planes, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Plan> buscarPlanId(@PathVariable int id) {
         Optional<Plan> plan = planService.buscarPlanId(id);

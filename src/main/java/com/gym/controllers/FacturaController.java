@@ -2,6 +2,7 @@ package com.gym.controllers;
 
 import com.gym.models.Factura;
 import com.gym.services.FacturaService;
+import com.gym.services.files.MembresiaFactura;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -24,6 +25,7 @@ public class FacturaController {
     private final FacturaService facturaService;
 
     private final ListarDetallesFactura listarDetallesFactura;
+    private final MembresiaFactura membresiaFactura;
 
     @PostMapping("/generar")
     public ResponseEntity<Factura> generarFactura(@RequestBody Factura factura) {
@@ -52,6 +54,24 @@ public class FacturaController {
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura_" + id + ".pdf");
 
             listarDetallesFactura.buildPdfDocument(id, response);
+        } catch (IOException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            try {
+                response.getWriter().write("Error al generar el documento PDF: " + e.getMessage());
+                response.getWriter().flush();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @GetMapping(value = "/Download-MembresiaPdf/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
+    public void  compraMembresiaPDF(@PathVariable Integer id, HttpServletResponse response) {
+        try {
+            response.setContentType("application/pdf");
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura_membresia" + id + ".pdf");
+
+            membresiaFactura.buildPdfDocument(id, response);
         } catch (IOException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             try {

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,5 +57,25 @@ public class MembresiaService {
     public Optional<Membresia> uno(int id) {
         return Optional.ofNullable(membresiaRepository.findById(id)
                 .orElseThrow((() -> new IllegalArgumentException("Membresia no encontrada"))));
+    }
+
+    public List<Membresia> listarPorCliente(String id_cliente) {
+        return membresiaRepository.findMembresiasByClienteId_cliente(id_cliente);
+    }
+
+    public List<Membresia> listarPorClientePrimer_apellido(String primer_apellido) {
+        return membresiaRepository.findByClientePrimer_apellido(primer_apellido);
+    }
+
+    public List<Membresia> listarPorPlanNombre(String nombre) {
+        return membresiaRepository.findMembresiaByPlanNombre(nombre);
+    }
+
+    public List<Membresia> listarPorDias_restantes() {
+        return membresiaRepository.findMembresiasByOrderByDias_restantesAsc();
+    }
+
+    public List<Membresia> listarPorEstado(String estado) {
+        return membresiaRepository.findMembresiasByEstado(estado);
     }
 }

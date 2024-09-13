@@ -74,7 +74,7 @@ public class ProductoController {
         return new ResponseEntity<>(productoGuardado, HttpStatus.OK);
     }
 
-    @PutMapping("/actualizar/{id_producto}")
+    @PatchMapping("/actualizar/{id_producto}")
     public ResponseEntity<Producto> actualizarProducto(
             @PathVariable String id_producto,
             @RequestParam("id_categoria") Integer categoriaId,
@@ -83,16 +83,21 @@ public class ProductoController {
             @RequestParam("precioCompra") double precioCompra,
             @RequestParam("margenGanancia") double margenGanancia,
             @RequestParam("precioVenta") double precioVenta,
-            @RequestParam("fecha_caducacion") String fecha_caducacion,
-            @RequestParam("descripcion") String descripcion,
-            @RequestParam("imagen") MultipartFile imagen) throws IOException {
+            @RequestParam("fecha_caducacion") Date fecha_caducacion,
+            @RequestParam("descripcion") String descripcion) throws IOException {
 
         Categoria categoria = categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
 
         Producto productoActualizado = productoService.actualizar(id_producto, nombre ,categoriaId, stock,
-                precioCompra, margenGanancia, precioVenta, fecha_caducacion, descripcion, imagen);
+                precioCompra, margenGanancia, precioVenta, String.valueOf(fecha_caducacion), descripcion);
         return new ResponseEntity<>(productoActualizado, HttpStatus.OK);
+    }
+
+    @PatchMapping("/actualizarImagen/{id_producto}")
+    public ResponseEntity<Producto> actualizarImagen(@PathVariable String id_producto, @RequestParam("imagen") MultipartFile imagen) throws IOException {
+        Producto producto = productoService.actualizarImagen(id_producto, imagen);
+        return new ResponseEntity<>(producto, HttpStatus.OK);
     }
 
     @DeleteMapping("/eliminar/{id_producto}")

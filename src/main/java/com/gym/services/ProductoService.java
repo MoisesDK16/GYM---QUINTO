@@ -87,7 +87,7 @@ public class ProductoService {
 
     public Producto actualizar(String idProducto, String nombre ,  Integer categoriaId, int stock, double precioCompra,
                                double margenGanancia, double precioVenta, String fechaCaducacion,
-                               String descripcion, MultipartFile image) throws IOException {
+                               String descripcion) throws IOException {
 
         if (idProducto == null || idProducto.trim().isEmpty()) {
             throw new IllegalArgumentException("El ID del producto no debe ser nulo o vacío");
@@ -109,12 +109,15 @@ public class ProductoService {
         productoExistente.setFecha_caducacion(LocalDate.parse(fechaCaducacion));
         productoExistente.setDescripcion(descripcion);
 
+        return productoRepository.save(productoExistente);
+    }
+
+    public Producto actualizarImagen(String idProducto, MultipartFile image) throws IOException {
+        Producto productoExistente = productoRepository.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto con id " + idProducto + " no encontrado"));
         String idImg = uploadFileService.copy(image);
-
         String imageUrl = "http://localhost:8080/api/productos/uploads/" + idImg;
-
         productoExistente.setImagen(imageUrl);
-
         return productoRepository.save(productoExistente);
     }
 

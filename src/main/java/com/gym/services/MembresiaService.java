@@ -111,4 +111,17 @@ public class MembresiaService {
         return desactivados;
     }
 
+    public void eliminar(Integer id) {
+        Optional<Membresia> membresiaOptional = Optional.ofNullable(membresiaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Membresia no encontrada")));
+
+        var membresia = membresiaOptional.get();
+
+        if(membresia.getDias_restantes()>0){
+            throw new IllegalArgumentException("No se puede eliminar una membresia activa");
+        }
+
+        membresiaRepository.deleteById(id);
+    }
+
 }

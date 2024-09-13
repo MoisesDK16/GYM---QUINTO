@@ -76,4 +76,9 @@ public class MembresiaController {
         return ResponseEntity.ok(membresiaService.desactivarMembresias());
     }
 
+    @DeleteMapping("/eliminar/{id}")
+    public void eliminar(@PathVariable Integer id) {
+        membresiaService.eliminar(id);
+    }
+
 }

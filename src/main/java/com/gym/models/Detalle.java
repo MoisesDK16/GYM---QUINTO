@@ -2,6 +2,8 @@ package com.gym.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 
@@ -29,6 +31,7 @@ public class Detalle {
 
     @ManyToOne
     @JoinColumn(name = "ID_MEMBRESIA")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Membresia membresia;
 
     @Column(name = "PRECIO", precision = 4, scale = 2)

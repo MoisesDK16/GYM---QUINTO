@@ -111,6 +111,10 @@ public class MembresiaService {
         return desactivados;
     }
 
+    public Membresia membresiaporCliente(String id_cliente) {
+        return membresiaRepository.findMembresiaByClienteId_cliente(id_cliente);
+    }
+
     public void eliminar(Integer id) {
         Optional<Membresia> membresiaOptional = Optional.ofNullable(membresiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Membresia no encontrada")));

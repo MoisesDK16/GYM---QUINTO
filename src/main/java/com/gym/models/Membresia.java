@@ -24,7 +24,7 @@ public class Membresia {
     private Integer idMembresia;
 
     @ManyToOne
-    @JoinColumn(name = "ID_CLIENTE", nullable = false)
+    @JoinColumn(name = "ID_CLIENTE", nullable = false, unique = true)
     private Cliente cliente;
 
     @ManyToOne

@@ -48,12 +48,20 @@ public class PlanController {
             @RequestParam("nombre") String nombre,
             @RequestParam("costo") double costo,
             @RequestParam("duracion_dias") int duracionDias,
-            @RequestParam("descripcion") String descripcion,
-            @RequestParam("imagen") MultipartFile imagen) throws IOException {
+            @RequestParam("descripcion") String descripcion) throws IOException {
 
-        Plan nuevoPlan = planService.registrar(nombre, costo, duracionDias, descripcion, imagen);
+        Plan nuevoPlan = planService.registrar(nombre, costo, duracionDias, descripcion);
 
         return new ResponseEntity<>(nuevoPlan, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/newImage/{id}")
+    public ResponseEntity<Plan> isertarImagen(
+            @PathVariable Integer id,
+            @RequestParam("imagen") MultipartFile imagen) throws IOException {
+
+        planService.insertarImagen(imagen,id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

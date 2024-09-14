@@ -37,11 +37,6 @@ public class MembresiaController {
         return ResponseEntity.ok(membresiaService.uno(id));
     }
 
-    @GetMapping("/cliente/{id_cliente}")
-    public ResponseEntity<List<Membresia>> listarPorCliente(@PathVariable String id_cliente) {
-        return ResponseEntity.ok(membresiaService.listarPorCliente(id_cliente));
-    }
-
     @GetMapping("cliente/apellido/{primer_apellido}")
     public ResponseEntity<List<Membresia>> listarPorClientePrimer_apellido(@PathVariable String primer_apellido) {
         return ResponseEntity.ok(membresiaService.listarPorClientePrimer_apellido(primer_apellido));
@@ -74,6 +69,11 @@ public class MembresiaController {
     @PatchMapping("/desactivar")
     public ResponseEntity<List<Membresia>> desactivarMembresias(){
         return ResponseEntity.ok(membresiaService.desactivarMembresias());
+    }
+
+    @GetMapping("/cliente/{id_cliente}")
+    public ResponseEntity<Membresia> findMembresiaByClienteId_cliente(@PathVariable String id_cliente) {
+        return ResponseEntity.ok(membresiaService.membresiaporCliente(id_cliente));
     }
 
     @DeleteMapping("/eliminar/{id}")

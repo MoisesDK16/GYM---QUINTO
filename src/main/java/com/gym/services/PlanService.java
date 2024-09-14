@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -46,19 +47,14 @@ public class PlanService {
             String nombre,
             double costo,
             int duracionDias,
-            String descripcion,
-            MultipartFile imagen) {
+            String descripcion) {
 
         try {
-            String img = uploadFileService.copy(imagen);
-            img = "http://localhost:8080/api/productos/uploads/" + img;
-
             var plan = Plan.builder()
                     .nombre(nombre)
                     .costo(BigDecimal.valueOf(costo))
                     .duracion_dias(duracionDias)
                     .descripcion(descripcion)
-                    .imagen(img)
                     .build();
 
             return planRepository.save(plan);
@@ -67,6 +63,18 @@ public class PlanService {
             log.error("Error al registrar plan", e);
             throw new RuntimeException("Error al registrar plan");
         }
+    }
+
+    public void insertarImagen(MultipartFile imagen, Integer id_plan) throws IOException {
+        Plan plan = planRepository.findById(id_plan)
+                .orElseThrow(() -> new IllegalArgumentException("ID de plan inválido"));
+
+        String img = uploadFileService.copy(imagen);
+        img = "http://localhost:8080/api/productos/uploads/" + img;
+
+        plan.setImagen(img);
+
+        planRepository.save(plan);
     }
 
 

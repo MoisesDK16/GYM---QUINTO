@@ -70,17 +70,14 @@ public class MembresiaService {
         return membresiaRepository.findByClientePrimer_apellido(primer_apellido);
     }
 
-    public List<Membresia> listarPorPlanNombre(String nombre) {
-        return membresiaRepository.findMembresiaByPlanNombre(nombre);
+    public List<Membresia> findMembresiasByPlanAndEstado(String nombre, String estado) {
+        return membresiaRepository.findMembresiasByPlanAndEstado(nombre, estado);
     }
 
     public List<Membresia> listarPorDias_restantes() {
         return membresiaRepository.findMembresiasByOrderByDias_restantesAsc();
     }
 
-    public List<Membresia> listarPorEstado(String estado) {
-        return membresiaRepository.findMembresiasByEstado(estado);
-    }
 
     public Membresia renovarMembresia(Date fechaInicio, Date fechaFin, Integer idMembresia) {
         Membresia membresia = membresiaRepository.findById(idMembresia)

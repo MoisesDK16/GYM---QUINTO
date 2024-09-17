@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @RestController
@@ -115,4 +119,36 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+
+    //FILTROS
+
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<List<Producto>> findByNombre(@PathVariable String nombre) {
+        List<Producto> productos= productoService.buscarPorNombre(nombre);
+        return new ResponseEntity<>(productos, HttpStatus.OK);
+    }
+
+    @GetMapping("/stock/{stock}")
+    public ResponseEntity<List<Producto>> findByStock(@PathVariable Integer stock) {
+        List<Producto> productos= productoService.buscarPorStock(stock);
+        return new ResponseEntity<>(productos, HttpStatus.OK);
+    }
+
+    @GetMapping("/categoria/{categoriaId}")
+    public ResponseEntity<List<Producto>> findByCategoriaId(@PathVariable int categoriaId) {
+        List<Producto> productos= productoService.buscarPorCategoria(categoriaId);
+        return new ResponseEntity<>(productos, HttpStatus.OK);
+    }
+
+    @GetMapping("/fecha_caducacion/{fecha_inicio}/{fecha_fin}")
+    public ResponseEntity<List<Producto>> findByFecha_caducacion(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_inicio,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_fin) {
+        List<Producto> productos = productoService.buscarPorFechaCaducacion(fecha_inicio, fecha_fin);
+        return new ResponseEntity<>(productos, HttpStatus.OK);
+    }
+
+
+
 }

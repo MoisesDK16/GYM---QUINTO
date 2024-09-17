@@ -42,19 +42,14 @@ public class MembresiaController {
         return ResponseEntity.ok(membresiaService.listarPorClientePrimer_apellido(primer_apellido));
     }
 
-    @GetMapping("/plan/{nombre}")
-    public ResponseEntity<List<Membresia>> listarPorPlan(@PathVariable String nombre) {
-        return ResponseEntity.ok(membresiaService.listarPorPlanNombre(nombre));
+    @GetMapping("/planYestado/{nombre}/{estado}")
+    public ResponseEntity<List<Membresia>> listarPorPlan(@PathVariable String nombre, @PathVariable String estado) {
+        return ResponseEntity.ok(membresiaService.findMembresiasByPlanAndEstado(nombre, estado));
     }
 
     @GetMapping("/dias_restantes-asc")
     public ResponseEntity<List<Membresia>> listarPorDias_restantes() {
         return ResponseEntity.ok(membresiaService.listarPorDias_restantes());
-    }
-
-    @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Membresia>> listarPorEstado(@PathVariable String estado) {
-        return ResponseEntity.ok(membresiaService.listarPorEstado(estado));
     }
 
     @PatchMapping("/renovar/{idMembresia}")

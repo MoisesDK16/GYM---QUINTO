@@ -21,12 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.List;
 
 @Service
 @Transactional
@@ -87,7 +83,7 @@ public class ProductoService {
 
     public Producto actualizar(String idProducto, String nombre ,  Integer categoriaId, int stock, double precioCompra,
                                double margenGanancia, double precioVenta, String fechaCaducacion,
-                               String descripcion, MultipartFile image) throws IOException {
+                               String descripcion) throws IOException {
 
         if (idProducto == null || idProducto.trim().isEmpty()) {
             throw new IllegalArgumentException("El ID del producto no debe ser nulo o vacío");
@@ -109,12 +105,15 @@ public class ProductoService {
         productoExistente.setFecha_caducacion(LocalDate.parse(fechaCaducacion));
         productoExistente.setDescripcion(descripcion);
 
+        return productoRepository.save(productoExistente);
+    }
+
+    public Producto actualizarImagen(String idProducto, MultipartFile image) throws IOException {
+        Producto productoExistente = productoRepository.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto con id " + idProducto + " no encontrado"));
         String idImg = uploadFileService.copy(image);
-
         String imageUrl = "http://localhost:8080/api/productos/uploads/" + idImg;
-
         productoExistente.setImagen(imageUrl);
-
         return productoRepository.save(productoExistente);
     }
 
@@ -130,6 +129,28 @@ public class ProductoService {
 
     public void eliminar(String id){
         productoRepository.deleteById(id);
+    }
+
+
+    //Filtros
+    public List<Producto> buscarPorNombre(String nombre) {
+        return productoRepository.findByNombre(nombre);
+    }
+
+    public List<Producto> buscarPorStock(Integer stock) {
+        return productoRepository.findByStock(stock);
+    }
+
+    public List<Producto> buscarPorCategoria(int categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId);
+    }
+
+    public List<Producto> buscarPorStock(int stock) {
+        return productoRepository.findByStock(stock);
+    }
+
+    public List<Producto> buscarPorFechaCaducacion(LocalDate fecha_inicio, LocalDate fecha_fin) {
+        return productoRepository.findByFecha_caducacion(fecha_inicio, fecha_fin);
     }
 
     //Excepciones Propias

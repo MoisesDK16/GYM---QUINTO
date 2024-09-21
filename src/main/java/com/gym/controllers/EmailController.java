@@ -1,6 +1,7 @@
 package com.gym.controllers;
 
 import com.gym.dto.CorreoRequest;
+import com.gym.models.Membresia;
 import com.gym.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,17 @@ public class EmailController {
                                                @RequestPart("archivo") MultipartFile file) {
         try {
             emailService.enviarCorreo(correoRequest, file);
+            return new ResponseEntity<>("Correo enviado exitosamente.", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al enviar el correo: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/advertencia-membresia")
+    public ResponseEntity<String> advertenciaMembresia(@RequestPart("campos") @Validated CorreoRequest correoRequest,
+                                                       @RequestPart("membresia") Membresia membresia) {
+        try {
+            emailService.advertenciaMembresia(correoRequest, membresia);
             return new ResponseEntity<>("Correo enviado exitosamente.", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error al enviar el correo: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

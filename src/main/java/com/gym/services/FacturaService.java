@@ -2,10 +2,13 @@ package com.gym.services;
 
 
 import com.gym.models.Cliente;
+import com.gym.models.Detalle;
 import com.gym.models.Factura;
 import com.gym.repositories.ClienteRepository;
+import com.gym.repositories.DetalleRepository;
 import com.gym.repositories.FacturaRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +21,13 @@ import java.util.Optional;
 @Service
 @Transactional
 @Log4j2
+@AllArgsConstructor
 public class FacturaService {
 
     private final FacturaRepository facturaRepository;
     private final ClienteRepository clienteRepository;
+    private final DetalleRepository detalleRepository;
 
-    public FacturaService(FacturaRepository facturaRepository, ClienteRepository clienteRepository) {
-        this.facturaRepository = facturaRepository;
-        this.clienteRepository = clienteRepository;
-    }
 
     public Factura generarFactura(
             Cliente cliente,
@@ -70,5 +71,52 @@ public class FacturaService {
         return facturaRepository.findLastFactura(idCliente);
     }
 
+    /*Filtros*/
+
+
+    //Productos
+
+    public List<Factura> findFacturasWithProductos() {
+        return facturaRepository.findFacturasWithProductos();
+    }
+
+    public List<Factura> findFacturasProductosByFechaEmision(String fechaInicio, String fechaFin, String metodoPago) {
+        if(metodoPago.equals("null")){
+            return facturaRepository.findFacturasProductosByFecha(fechaInicio, fechaFin);
+        }else{
+            return facturaRepository.findFacturasProductosByFecha(fechaInicio, fechaFin, metodoPago);
+        }
+    }
+
+    public List<Factura> findFacturasProductosByCliente(String idCliente) {
+        return facturaRepository.findFacturasProductosByCliente(idCliente);
+    }
+
+    public List<Factura> findFacturasByNombreCompleto(String nombreApellido) {
+        return facturaRepository.findFacturasByNombreCompleto(nombreApellido);
+    }
+
+
+    //Membresias
+
+    public List<Detalle> findFacturasWithMembresia() {
+        return detalleRepository.findFacturasWithMembresia();
+    }
+
+    public List<Detalle> findFacturasMembresiasByFechaEmision(String fechaInicio, String fechaFin, String metodoPago) {
+        if(metodoPago.equals("null")){
+            return detalleRepository.findFacturasMembresiasByFecha(fechaInicio, fechaFin);
+        }else{
+            return detalleRepository.findFacturasMembresiasByFecha(fechaInicio, fechaFin, metodoPago);
+        }
+    }
+
+    public List<Detalle> findFacturasMembresiasByCliente(String idCliente) {
+        return detalleRepository.findFacturasMembresiasByCliente(idCliente);
+    }
+
+    public List<Detalle> findFacturasByNombreCompletoM(String nombreApellido) {
+        return detalleRepository.findFacturasByNombreCompleto(nombreApellido);
+    }
 
 }

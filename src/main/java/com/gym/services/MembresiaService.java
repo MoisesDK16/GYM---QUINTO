@@ -57,6 +57,10 @@ public class MembresiaService {
         return membresiaRepository.findAll(PageRequest.of(page, size));
     }
 
+    public List<Membresia> listar() {
+        return membresiaRepository.findAll();
+    }
+
     public Optional<Membresia> uno(int id) {
         return Optional.ofNullable(membresiaRepository.findById(id)
                 .orElseThrow((() -> new IllegalArgumentException("Membresia no encontrada"))));

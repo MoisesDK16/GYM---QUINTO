@@ -132,7 +132,10 @@ public class ListarDetallesFactura {
         }
 
         for (Detalle detalle : detalles) {
-            detallesTable.addCell(new PdfPCell(new Phrase(detalle.getProducto().getNombre(), new Font(Font.HELVETICA, 10))));
+            String nombre = detalle.getProducto() != null ? detalle.getProducto().getNombre() :
+                    (detalle.getMembresia() != null ? detalle.getMembresia().getPlan().getNombre() : "Sin nombre");
+
+            detallesTable.addCell(new PdfPCell(new Phrase(nombre, new Font(Font.HELVETICA, 10))));
             detallesTable.addCell(new PdfPCell(new Phrase(String.valueOf(detalle.getCantidad()), new Font(Font.HELVETICA, 10))));
             detallesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f", detalle.getPrecio()), new Font(Font.HELVETICA, 10))));
             detallesTable.addCell(new PdfPCell(new Phrase(String.format("%.2f", detalle.getTotal()), new Font(Font.HELVETICA, 10))));

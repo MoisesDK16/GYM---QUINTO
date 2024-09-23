@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class Cliente {
 
     @Id
-    @Column(name = "id_cliente", nullable = false)
+    @Column(name = "id_cliente", nullable = false, unique = true)
     private String id_cliente;
 
     @Column(nullable = false)

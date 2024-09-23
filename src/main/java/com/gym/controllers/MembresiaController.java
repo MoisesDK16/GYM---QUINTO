@@ -32,6 +32,11 @@ public class MembresiaController {
         return ResponseEntity.ok(membresias);
     }
 
+    @GetMapping("/all2")
+    public ResponseEntity<List<Membresia>> listar() {
+        return ResponseEntity.ok(membresiaService.listar());
+    }
+
     @GetMapping("uno/{id}")
     public ResponseEntity<Optional<Membresia>> uno(@PathVariable int id) {
         return ResponseEntity.ok(membresiaService.uno(id));

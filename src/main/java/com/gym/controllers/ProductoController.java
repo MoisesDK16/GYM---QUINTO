@@ -33,7 +33,7 @@ public class ProductoController {
     private final CategoriaRepository categoriaRepository;
     private final UploadFileService uploadFileService;
 
-    @GetMapping("/all")
+    @GetMapping("me/all")
     public ResponseEntity<Page<Producto>> findAll(@RequestParam int page, @RequestParam int size) {
         Page<Producto> productos = productoService.listar(page, size);
         return new ResponseEntity<>(productos, HttpStatus.OK);
@@ -49,7 +49,7 @@ public class ProductoController {
     }
 
 
-    @GetMapping("/{id_producto}")
+    @GetMapping("me/{id_producto}")
     public ResponseEntity<Producto> findById(@PathVariable String id_producto) {
         Producto producto = productoService.obtenerProducto(id_producto);
         return new ResponseEntity<>(producto, HttpStatus.OK);
@@ -110,7 +110,7 @@ public class ProductoController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/actualizarStock/{id_producto}/{cantidad}")
+    @PostMapping("me/actualizarStock/{id_producto}/{cantidad}")
     public ResponseEntity<String> actualizarStock(@PathVariable String id_producto , @PathVariable int cantidad) {
         try {
             productoService.actualizarStock(id_producto, cantidad);

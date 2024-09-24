@@ -19,7 +19,7 @@ public class MembresiaController {
 
     private final MembresiaService membresiaService;
 
-    @PostMapping("/registrar")
+    @PostMapping("me/registrar")
     public ResponseEntity<Membresia> registrar(@RequestBody Membresia membresia){
         return ResponseEntity.ok(membresiaService.registrar(membresia));
     }
@@ -37,10 +37,33 @@ public class MembresiaController {
         return ResponseEntity.ok(membresiaService.listar());
     }
 
-    @GetMapping("uno/{id}")
+    @GetMapping("me/uno/{id}")
     public ResponseEntity<Optional<Membresia>> uno(@PathVariable int id) {
         return ResponseEntity.ok(membresiaService.uno(id));
     }
+
+    @PatchMapping("me/renovar/{idMembresia}")
+    public ResponseEntity<Membresia> renovar(
+            @RequestParam("fechaInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaInicio,
+            @RequestParam("fechaFin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaFin,
+            @PathVariable Integer idMembresia) {
+
+        return ResponseEntity.ok(membresiaService.renovarMembresia(fechaInicio, fechaFin, idMembresia));
+    }
+
+
+    @GetMapping("me/cliente/{id_cliente}")
+    public ResponseEntity<Membresia> findMembresiaByClienteId_cliente(@PathVariable String id_cliente) {
+        return ResponseEntity.ok(membresiaService.membresiaporCliente(id_cliente));
+    }
+
+    @DeleteMapping("me/eliminar/{id}")
+    public void eliminar(@PathVariable Integer id) {
+        membresiaService.eliminar(id);
+    }
+
+
+    /*Filtros*/
 
     @GetMapping("cliente/apellido/{primer_apellido}")
     public ResponseEntity<List<Membresia>> listarPorClientePrimer_apellido(@PathVariable String primer_apellido) {
@@ -57,29 +80,9 @@ public class MembresiaController {
         return ResponseEntity.ok(membresiaService.listarPorDias_restantes());
     }
 
-    @PatchMapping("/renovar/{idMembresia}")
-    public ResponseEntity<Membresia> renovar(
-            @RequestParam("fechaInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaInicio,
-            @RequestParam("fechaFin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaFin,
-            @PathVariable Integer idMembresia) {
-
-        return ResponseEntity.ok(membresiaService.renovarMembresia(fechaInicio, fechaFin, idMembresia));
-    }
-
     @PatchMapping("/desactivar")
     public ResponseEntity<List<Membresia>> desactivarMembresias(){
         return ResponseEntity.ok(membresiaService.desactivarMembresias());
     }
-
-    @GetMapping("/cliente/{id_cliente}")
-    public ResponseEntity<Membresia> findMembresiaByClienteId_cliente(@PathVariable String id_cliente) {
-        return ResponseEntity.ok(membresiaService.membresiaporCliente(id_cliente));
-    }
-
-    @DeleteMapping("/eliminar/{id}")
-    public void eliminar(@PathVariable Integer id) {
-        membresiaService.eliminar(id);
-    }
-    
 
 }

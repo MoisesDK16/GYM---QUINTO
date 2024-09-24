@@ -29,7 +29,7 @@ public class FacturaController {
     private final ListarDetallesFactura listarDetallesFactura;
     private final MembresiaFactura membresiaFactura;
 
-    @PostMapping("/generar")
+    @PostMapping("me/generar")
     public ResponseEntity<Factura> generarFactura(@RequestBody Factura factura) {
         Factura facturaGenerada = facturaService.generarFactura(
                 factura.getCliente(),
@@ -50,7 +50,7 @@ public class FacturaController {
     }
 
 
-    @GetMapping(value = "/DownloadPdf/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "me/DownloadPdf/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
     public void downloadPDF(@PathVariable Integer id, HttpServletResponse response) {
         try {
             response.setContentType("application/pdf");
@@ -68,7 +68,7 @@ public class FacturaController {
         }
     }
 
-    @GetMapping(value = "/Download-MembresiaPdf/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "me/Download-MembresiaPdf/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
     public void  compraMembresiaPDF(@PathVariable Integer id, HttpServletResponse response) {
         try {
             response.setContentType("application/pdf");
@@ -87,7 +87,7 @@ public class FacturaController {
     }
 
 
-    @GetMapping("/last/{id_cliente}")
+    @GetMapping("me/last/{id_cliente}")
     public Optional<Factura> getLastFactura(@PathVariable String id_cliente) {
         return facturaService.findLastFactura(id_cliente);
     }

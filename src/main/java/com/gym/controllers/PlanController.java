@@ -22,7 +22,7 @@ public class PlanController {
     @Autowired
     private PlanService planService;
 
-    @GetMapping("/listar")
+    @GetMapping("me/listar")
     public ResponseEntity<Page<Plan>> listarPlanes(
             int page,
             int size) {
@@ -30,13 +30,13 @@ public class PlanController {
         return new ResponseEntity<>(planes, HttpStatus.OK);
     }
 
-    @GetMapping("/all")
+    @GetMapping("me/all")
     public ResponseEntity<List<Plan>> listarPlanes() {
         List<Plan> planes = planService.listar();
         return new ResponseEntity<>(planes, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("me/{id}")
     public ResponseEntity<Plan> buscarPlanId(@PathVariable int id) {
         Optional<Plan> plan = planService.buscarPlanId(id);
         return plan.map(value -> new ResponseEntity<>(value, HttpStatus.OK))

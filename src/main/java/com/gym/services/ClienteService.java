@@ -48,6 +48,10 @@ public class ClienteService {
         return clienteRepository.save(clienteActualizar);
     }
 
+    public Optional<Cliente> findByCorreo(String correo){
+        return clienteRepository.findByCorreo(correo);
+    }
+
     public void eliminarCliente(String id_cliente){
         clienteRepository.deleteById(id_cliente);
     }

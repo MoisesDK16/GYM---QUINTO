@@ -28,9 +28,17 @@ public class ClienteController {
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
 
-    @GetMapping("/{id_cliente}")
+    @GetMapping("me/{id_cliente}")
     public ResponseEntity<Cliente> obtenerCliente(@PathVariable String id_cliente) {
         Optional<Cliente> cliente = clienteService.obtenerCliente(id_cliente);
+
+        return cliente.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("me/correo/{correo}")
+    public ResponseEntity<Cliente> obtenerClientePorCorreo(@PathVariable String correo) {
+        Optional<Cliente> cliente = clienteService.findByCorreo(correo);
 
         return cliente.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -42,13 +50,13 @@ public class ClienteController {
         return new ResponseEntity<>(cliente, HttpStatus.CREATED);
     }
 
-    @PutMapping("/actualizar/{idCliente}")
+    @PutMapping("me/actualizar/{idCliente}")
     public ResponseEntity<Cliente> modificarCliente(@PathVariable String idCliente,@RequestBody Cliente cliente) {
         clienteService.actualizar(idCliente, cliente);
         return new ResponseEntity<>(cliente, HttpStatus.OK);
     }
 
-    @DeleteMapping("/eliminar/{idCliente}")
+    @DeleteMapping("eliminar/{idCliente}")
     public ResponseEntity<Void> eliminarCliente(@PathVariable String idCliente) {
         clienteService.eliminarCliente(idCliente);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

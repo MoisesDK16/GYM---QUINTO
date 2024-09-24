@@ -17,7 +17,7 @@ public class EmailController {
 
     private final EmailService emailService;
 
-    @PostMapping("/enviar-correo")
+    @PostMapping("me/enviar-correo")
     public ResponseEntity<String> enviarCorreo(@RequestPart("campos") @Validated CorreoRequest correoRequest,
                                                @RequestPart("archivo") MultipartFile file) {
         try {

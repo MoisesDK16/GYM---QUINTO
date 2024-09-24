@@ -35,18 +35,18 @@ public class ServicioController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/all")
+    @GetMapping("me/all")
     public ResponseEntity<List<Servicio>> listarServicios(){
         return ResponseEntity.ok(service.listarServicios());
     }
 
-    @GetMapping("uno/{id}")
+    @GetMapping("me/uno/{id}")
     public ResponseEntity<Optional<Servicio>> buscarServicioPorId(@PathVariable Integer id){
         Optional<Servicio> servicio = service.obtenerServicio(id);
         return ResponseEntity.ok(servicio);
     }
 
-    @GetMapping("/servicios-por-categoria")
+    @GetMapping("me/servicios-por-categoria")
     public ResponseEntity<List<Servicio>> serviciosPorCategoria(
             @RequestBody Categoria categoria){
         return ResponseEntity.ok(service.ServiciosPorCategoria(categoria));

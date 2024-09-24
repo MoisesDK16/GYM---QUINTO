@@ -44,7 +44,7 @@ public class ClienteController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/registrar")
+    @PostMapping("me/registrar")
     public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
         clienteService.registrar(cliente);
         return new ResponseEntity<>(cliente, HttpStatus.CREATED);

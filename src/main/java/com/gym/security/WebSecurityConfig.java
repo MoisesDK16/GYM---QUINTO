@@ -54,7 +54,14 @@ public class WebSecurityConfig {
                 ).permitAll()
                 .requestMatchers(
                         "/users/login",
-                        "/users/register"
+                        "/users/register",
+                        "/api/productos/me/all",
+                        "/api/planes/me/all",
+                        "/api/productos/uploads/**",
+                        "/api/productos/actualizarImagen/**",
+                        "/users/me/registerCliente",
+                        "api/clientes/me/registrar",
+                        "api/clientes/me/correo/**"
                 ).permitAll()
                 .requestMatchers(
                         "/api/categorias/**",
@@ -78,7 +85,7 @@ public class WebSecurityConfig {
                         "/apiEmail/me/**",
                         "/api/membresias/me/**",
                         "/personal/me/**",
-                        "api/planes/me/**",
+                        "/api/planes/me/**",
                         "/api/servicios/me/**"
                 ).hasAuthority("CLIENTE")
                 .anyRequest()

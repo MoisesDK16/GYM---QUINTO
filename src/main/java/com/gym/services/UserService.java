@@ -49,7 +49,7 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        var rol = cargoRepository.findByCargo("CLIENTE").orElseThrow( () -> new IllegalArgumentException("Cargo not found"));
+        var rol = cargoRepository.findByCargo("CLIENT").orElseThrow( () -> new IllegalArgumentException("Cargo not found"));
         var user = Usuario.builder()
                 .username(data.getUsername())
                 .password(passwordEncoder.encode(data.getPassword()))

@@ -49,54 +49,57 @@ public class WebSecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http.csrf(CsrfConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        antMatcher(HttpMethod.GET, "/files/**")
-                ).permitAll()
-                .requestMatchers(
-                        "/users/login",
-                        "/users/register",
-                        "/api/productos/me/all",
-                        "/api/planes/me/all",
-                        "/api/productos/uploads/**",
-                        "/api/productos/actualizarImagen/**",
-                        "/users/me/registerCliente",
-                        "api/clientes/me/registrar",
-                        "api/clientes/me/correo/**"
-                ).permitAll()
-                .requestMatchers(
-                        "/api/categorias/**",
-                        "/api/productos/**",
-                        "/api/facturas/**",
-                        "/api/clientes/**",
-                        "/api/detalles/**",
-                        "/apiEmail/**",
-                        "/api/membresias/**",
-                        "/personal/**",
-                        "api/planes/**",
-                        "/api/servicios/**",
-                        "/users/**"
-                ).hasAuthority("ADMIN")
-                .requestMatchers(
-                        "/api/categorias/me/**",
-                        "/api/productos/me/**",
-                        "/api/facturas/me/**",
-                        "/api/clientes/me/**",
-                        "/api/detalles/me/**",
-                        "/apiEmail/me/**",
-                        "/api/membresias/me/**",
-                        "/personal/me/**",
-                        "/api/planes/me/**",
-                        "/api/servicios/me/**"
-                ).hasAuthority("CLIENTE")
-                .anyRequest()
-                .authenticated()
-        ).exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+                        .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
+                        .requestMatchers(
+                                "/users/login",
+                                "/users/register",
+                                "/api/productos/uploads/**",
+                                "/api/productos/actualizarImagen/**",
+                                "/users/me/registerCliente",
+                                "/api/clientes/me/registrar",
+                                "/api/clientes/me/correo/**",
+                                "/api/productos/me/all",
+                                "/api/planes/me/listar",
+                                "/api/planes/me/all"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/categorias/**",
+                                "/api/productos/**",
+                                "/api/facturas/**",
+                                "/api/clientes/**",
+                                "/api/detalles/**",
+                                "/apiEmail/**",
+                                "/api/membresias/**",
+                                "/personal/**",
+                                "/api/planes/**",
+                                "/api/servicios/**",
+                                "/users/**"
+                        ).hasAuthority("ADMIN")
+                        .requestMatchers(
+                                "/api/categorias/me/**",
+                                "/api/productos/me/**",
+                                "/api/facturas/me/**",
+                                "/api/clientes/me/**",
+                                "/api/detalles/me/**",
+                                "/apiEmail/me/**",
+                                "/api/membresias/me/**",
+                                "/personal/me/**",
+                                "/api/planes/me/**",
+                                "/api/servicios/me/**"
+                        ).hasAuthority("CLIENT")
+                        .anyRequest()
+                        .authenticated()
+                )
+                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.userDetailsService(userDetailsService);
         http.httpBasic(basic -> basic.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage())));
+
         return http.build();
     }
+
 
 
 }
